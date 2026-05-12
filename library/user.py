@@ -3,7 +3,7 @@ from .exceptions import InvalidUser
 class User:
     def __init__(self, name: str):
         if not isinstance(name, str) or name.strip() == "":
-            raise InvalidUser(f"Invalid user initialization")
+            raise InvalidUser("Invalid user initialization")
         self.id = 0
         self.name = name
         self.borrowed_physical_books = []

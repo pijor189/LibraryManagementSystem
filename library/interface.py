@@ -30,7 +30,7 @@ def menu(lib: Library, user: User, option: int) -> bool:
         show(["1. Find book by a name", "2. Find book by a genre", "3. Find book by an author"])
         number = int(input("Select: "))
         if not isinstance(number, int):
-            raise TypeError(f"Not valid number")
+            raise TypeError("Not valid number")
         if number == 1:
             name = input("Name of search book: ")
             show(lib.find_book_by_name(name))
@@ -60,11 +60,11 @@ def menu(lib: Library, user: User, option: int) -> bool:
                 print(b.book.title, "\n", b.loan, sep="")
             book_name = input("Choose a book you want to extend: ")
             book = lib.find_book_by_name(book_name)
-            for l in lib.loans:
-                if user.id == l.user.id and l.book in book[0].copies:
+            for loan in lib.loans:
+                if user.id == loan.user.id and loan.book in book[0].copies:
                     days = int(input("How many days would you like to extend this book for?"
                                        " (Maximum: 30 days): "))
-                    l.extend(days)
+                    loan.extend(days)
         else:
             print("You dont have any books that you can extend")
     elif option == 7:

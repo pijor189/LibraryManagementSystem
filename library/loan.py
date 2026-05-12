@@ -27,7 +27,7 @@ class Loan:
             return
 
         if days <= 0:
-            raise ValueError(f"Days must be greater than 0")
+            raise ValueError("Days must be greater than 0")
 
         new_due = self.due_date + timedelta(days=days)
         max_due = self.due_date + timedelta(days=self.MAX_DAYS)

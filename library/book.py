@@ -1,4 +1,4 @@
-from .exceptions import InvalidBook, NoBook
+from .exceptions import InvalidBook
 from utils.uid import generate_uid_book
 
 class Book:
@@ -7,7 +7,7 @@ class Book:
                 or not isinstance(year, int) or title.strip() == "" or author.strip() == "" or year == 0 \
                 or not isinstance(amount, int) or (isinstance(genre, list) and not genre) \
                 or (isinstance(genre, str) and genre.strip() == ""):
-            raise InvalidBook(f"Invalid book initialization")
+            raise InvalidBook("Invalid book initialization")
         self.title = title
         self.author = author
         self.genre = genre
@@ -47,7 +47,7 @@ class BookCopy:
 class EBook(Book):
     def __init__(self, title: str, author: str, genre: list[str] | str, year: int, file_size: int):
         if not isinstance(file_size, int) or file_size < 0:
-            raise InvalidBook(f"Invalid ebook initialization")
+            raise InvalidBook("Invalid ebook initialization")
         super().__init__(title, author, genre, year)
         self.id = 0
         self.file_size = file_size

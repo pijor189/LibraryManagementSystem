@@ -2,7 +2,7 @@ from .config import logger
 from .book import Book, EBook, BookCopy
 from .user import User
 from .loan import Loan
-from .exceptions import *
+from .exceptions import NoBook, NoUser, InvalidNumberOfBooks
 from utils.uid import generate_uid
 from datetime import datetime
 
@@ -43,7 +43,7 @@ class Library:
             if not book_in_list:
                 raise NoBook(f"There is no book {book_in_list} matching the one you provided")
             if amount < 1:
-                raise InvalidNumberOfBooks(f"Invalid number of books to add")
+                raise InvalidNumberOfBooks("Invalid number of books to add")
             for _ in range(amount):
                 book_copy = BookCopy(book_in_list)
                 book_copy.id = generate_uid(self.books_id)
@@ -93,7 +93,7 @@ class Library:
     def choose_book(results):
         """ Allow the user to choose the book type when multiple matching books are found """
         if not results:
-            raise NoBook(f"There is no book to choose from")
+            raise NoBook("There is no book to choose from")
 
         if len(results) == 1:
             return results[0]
@@ -169,9 +169,9 @@ class Library:
                 for b in user_in_list.borrowed_physical_books:
                     if b in book.copies:
                         user_in_list.borrowed_physical_books.remove(b)
-                        for l in self.loans:
-                            if l.book == b.book and l.user == user_in_list:
-                                l.returned_at = datetime.now()
+                        for loan in self.loans:
+                            if loan.book == b.book and loan.user == user_in_list:
+                                loan.returned_at = datetime.now()
                         b.is_available = True
                         b.loan = None
                         logger.info(f"User {user_in_list.name} returned the book: {b.book.title} to the library")

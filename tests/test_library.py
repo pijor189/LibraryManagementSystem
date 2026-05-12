@@ -17,77 +17,77 @@ def test_create_lib(create_lib):
 """
 def test_invalid_user():
     with pytest.raises(InvalidUser):
-        user = User('')
+        User('')
 
 """
     Create a invalid book (invalid title)
 """
 def test_invalid_book_invalid_title():
     with pytest.raises(InvalidBook):
-        book = Book(1, "Henryk Sienkiewicz", "historical fiction", 1900)
+        Book(1, "Henryk Sienkiewicz", "historical fiction", 1900)
 
 """
     Create a invalid book (empty title)
 """
 def test_invalid_book_empty_title():
     with pytest.raises(InvalidBook):
-        book = Book("", "Henryk Sienkiewicz", "historical fiction", 1900)
+        Book("", "Henryk Sienkiewicz", "historical fiction", 1900)
 
 """
     Create a invalid book (empty author)
 """
 def test_invalid_book_empty_author():
     with pytest.raises(InvalidBook):
-        book = Book("Krzyżacy", "", "historical fiction", 1900)
+        Book("Krzyżacy", "", "historical fiction", 1900)
 
 """
     Create a invalid book (invalid author)
 """
 def test_invalid_book_invalid_author():
     with pytest.raises(InvalidBook):
-        book = Book("Krzyżacy", 1, "historical fiction", 1900, 1)
+        Book("Krzyżacy", 1, "historical fiction", 1900, 1)
 
 """
     Create a invalid book (empty genre - string)
 """
 def test_invalid_book_empty_genre_str():
     with pytest.raises(InvalidBook):
-        book = Book("Krzyżacy", "Henryk Sienkiewicz", "", 1900)
+        Book("Krzyżacy", "Henryk Sienkiewicz", "", 1900)
 
 """
     Create a invalid book (empty genre - list)
 """
 def test_invalid_book_empty_genre_list():
     with pytest.raises(InvalidBook):
-        book = Book("Krzyżacy", "Henryk Sienkiewicz", [], 1900)
+        Book("Krzyżacy", "Henryk Sienkiewicz", [], 1900)
 
 """
     Create a invalid book (invalid genre)
 """
 def test_invalid_book_invalid_genre():
     with pytest.raises(InvalidBook):
-        book = Book("Krzyżacy", "Henryk Sienkiewicz", 1, 1900)
+        Book("Krzyżacy", "Henryk Sienkiewicz", 1, 1900)
 
 """
     Create a invalid book (invalid amount)
 """
 def test_invalid_book_invalid_amout():
     with pytest.raises(InvalidBook):
-        book = Book("Krzyżacy", "Henryk Sienkiewicz", "historical fiction", 1900, "1")
+        Book("Krzyżacy", "Henryk Sienkiewicz", "historical fiction", 1900, "1")
 
 """
     Create a invalid ebook (file size not int)
 """
 def test_invalid_ebook_invalid_file_size():
     with pytest.raises(InvalidBook):
-        book = EBook("Krzyżacy", "Henryk Sienkiewicz", "historical fiction", 1900, "")
+        EBook("Krzyżacy", "Henryk Sienkiewicz", "historical fiction", 1900, "")
 
 """
     Create a invalid ebook (invalid file size)
 """
 def test_invalid_ebook_too_small_file_size():
     with pytest.raises(InvalidBook):
-        book = EBook("Krzyżacy", "Henryk Sienkiewicz", "historical fiction", 1900, -1)
+        EBook("Krzyżacy", "Henryk Sienkiewicz", "historical fiction", 1900, -1)
 
 """
     Book not provided to add_book function
@@ -302,7 +302,6 @@ def test_borrow_ebook(create_lib):
 def test_add_more_books(create_lib):
     # step 1
     lib = create_lib
-    user = lib.users_list[0]
     book = lib.catalog[0]
     assert book.amount == 1
     assert len(lib.books_id) == 14

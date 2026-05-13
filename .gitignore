@@ -18,6 +18,7 @@ env/
 # pytest
 .pytest_cache/
 .htmlcov/
+.coverage
 
 # mypy
 .mypy_cache/

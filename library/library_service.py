@@ -106,7 +106,12 @@ class Library:
         """Unregister a user from the library"""
         user_in_list = self.check_user(user)
 
-        if user_in_list.borrowed_physical_books or user_in_list.borrowed_ebooks:
+        if any(
+            [
+                user_in_list.borrowed_physical_books,
+                user_in_list.borrowed_ebooks,
+            ]
+        ):
             raise UserWithItemsCannotBeUnregistered(
                 f"{user_in_list.name} has borrowed books"
             )
@@ -163,7 +168,7 @@ class Library:
             self.add_to_waitlist(user, book)
             return
         # Check if anyone is in the queue
-        if book.waitlist:
+        if any(book.waitlist):
             self.add_to_waitlist(user, book)
             self.process_waitlist(book)
             return
@@ -265,7 +270,7 @@ class Library:
         for book in self.catalog:
             if genre.lower().strip() in [b.lower().strip() for b in book.genre]:
                 result.append(book)
-        if result:
+        if any(result):
             logger.info(f"Books matching genre {genre.strip()}:\n{result}")
         else:
             logger.info(f"There is no book matching the genre: {genre.strip()}")
@@ -277,7 +282,7 @@ class Library:
         for book in self.catalog:
             if author.lower().strip() == book.author.lower().strip():
                 result.append(book)
-        if result:
+        if any(result):
             logger.info(f"Books matching author {author.strip()}:\n{result}")
         else:
             logger.info(f"There is no book matching the author: {author.strip()}")

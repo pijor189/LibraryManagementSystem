@@ -22,6 +22,7 @@ env/
 coverage.xml
 pytest_report.html
 .public/
+report.xml
 
 # mypy
 .mypy_cache/

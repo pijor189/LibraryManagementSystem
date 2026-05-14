@@ -64,6 +64,17 @@ jobs:
         name: junit-report
         path: report.xml
 
+    - name: Publish HTML report to GitHub Pages
+      uses: peaceiris/actions-gh-pages@v4
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        publish_dir: ./htmlcov
+
+    - name: Write test summary
+      run: |
+        echo "## Test Results" >> $GITHUB_STEP_SUMMARY
+        pytest tests/ -q --tb=short
+
 #    - name: Lint with Ruff
 #      run: |
 #        ruff check . --output-format=github

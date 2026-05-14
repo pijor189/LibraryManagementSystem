@@ -59,12 +59,13 @@ class Library:
         # w przypadku jesli chcemy usunac tylko kilka, to nalezaloby podac konkretne id ktorych,
         # bo moze chodzi o egzemplarz ktory sie uszkodzil, wiec nie moze to byc randomowy (ID)
         # TODO
-        try:
-            book_in_list = self.check_book(book)
-            if all_copies:
-                pass
-        except NoBook as e:
-            logger.error(e)
+        # try:
+        #     book_in_list = self.check_book(book)
+        #     if all_copies:
+        #         pass
+        # except NoBook as e:
+        #     logger.error(e)
+        pass
 
     def check_user(self, user: User) -> User:
         user_in_list = next((u for u in self.users_list if u.id == user.id), None)

@@ -1,5 +1,8 @@
 name: CI Pipeline
 
+permissions:
+  contents: write
+
 on:
   push:
     branches: [ main ]
@@ -8,6 +11,7 @@ on:
 
 jobs:
   test:
+    needs: test
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -64,29 +68,36 @@ jobs:
         name: junit-report
         path: report.xml
 
-    - name: Debug files
-      run: |
-        pwd
-        ls -la
-        ls -la htmlcov || echo "NO HTMLCOV"
-
     - name: Prepare dashboard
       run: |
         mkdir public
         cp -r htmlcov public/coverage
         cp pytest_report.html public/
 
-    - name: Publish HTML report to GitHub Pages
-      uses: peaceiris/actions-gh-pages@v4
-      with:
-        github_token: ${{ secrets.GITHUB_TOKEN }}
-        publish_dir: public
-        force_orphan: true
+  deploy:
+    needs: test
+    runs-on: ubuntu-latest
 
-    - name: Write test summary
-      run: |
-        echo "## Test Results" >> $GITHUB_STEP_SUMMARY
-        pytest tests/ -q --tb=short
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download build from test job
+        uses: actions/download-artifact@v4
+        with:
+          name: reports
+          path: public
+
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: public
+          force_orphan: true
+
+      - name: Write test summary
+        run: |
+          echo "## Test Results" >> $GITHUB_STEP_SUMMARY
+          pytest tests/ -q --tb=short
 
 #    - name: Lint with Ruff
 #      run: |

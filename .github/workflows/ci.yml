@@ -64,6 +64,12 @@ jobs:
         name: junit-report
         path: report.xml
 
+    - name: Debug files
+      run: |
+        pwd
+        ls -la
+        ls -la htmlcov || echo "NO HTMLCOV"
+
     - name: Prepare dashboard
       run: |
         mkdir public
@@ -74,7 +80,8 @@ jobs:
       uses: peaceiris/actions-gh-pages@v4
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
-        publish_dir: ./public/
+        publish_dir: public
+        force_orphan: true
 
     - name: Write test summary
       run: |

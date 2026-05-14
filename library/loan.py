@@ -12,6 +12,8 @@ class Loan:
         if isinstance(book, EBook):
             self.due_date = None
         else:
+            if days <= 0:
+                raise ValueError("Days must be greater than 0")
             days = min(days, self.MAX_DAYS)
             self.due_date = self.borrowed_at + timedelta(days=days)
         self.returned_at = None
@@ -22,7 +24,7 @@ class Loan:
     def __repr__(self):
         return f"Borrowed at: {self.borrowed_at}\nDue date: {self.due_date}"
 
-    def extend(self, days: int):
+    def extend(self, days: int) -> None:
         if isinstance(self.book, EBook):
             return
 

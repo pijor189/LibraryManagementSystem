@@ -1,10 +1,9 @@
-import logging
-from library.config import logger
 from library.user import User
-from library.interface import init_library, menu
+from interface import init_library, menu, clear_console
 from library.exceptions import NoBook, InvalidUser
+import logging
 
-logger.setLevel(logging.ERROR)
+logging.disable(logging.CRITICAL)
 
 if __name__ == "__main__":
     lib = init_library()
@@ -13,7 +12,7 @@ if __name__ == "__main__":
         user = User(input("Welcome! What's your name?\n"))
         lib.register_user(user)
     except InvalidUser as e:
-        logger.exception(e)
+        print(e)
         exit()
 
     options = ["1. Show all books",
@@ -25,15 +24,20 @@ if __name__ == "__main__":
                "7. Return a book",
                "8. Exit"
                ]
+    running = True
 
-    while True:
+    while running:
+        clear_console()
+
         try:
             print("------LIBRARY SYSTEM------")
             for option in options:
                 print(option)
             number = int(input("Choose an option: "))
             if not menu(lib, user, number):
-                break
+                running = False
+            else:
+                input("\nPress ENTER to continue...")
         except (TypeError, NoBook, ValueError) as e:
-            logger.error(e)
-            continue
+            print(f"\033[31m{e}\033[0m")
+            input("\nPress ENTER to continue...")

@@ -1,5 +1,6 @@
 from .exceptions import InvalidBook
 from utils.uid import generate_uid_book
+from typing import Self
 
 class Book:
     def __init__(self, title: str, author: str, genre: list[str] | str, year: int, amount: int = 1):
@@ -23,7 +24,7 @@ class Book:
     def __repr__(self):
         return f"Book: Title: {self.title} - Author: {self.author} - Genre: {self.genre} - Year: {self.year}\n"
 
-    def available_copy(self):
+    def available_copy(self) -> Self | None:
         for copy in self.copies:
             if copy.is_available:
                 return copy
@@ -60,5 +61,5 @@ class EBook(Book):
         return (f"EBook: Title: {self.title} - Author: {self.author} - Genre: {self.genre} "
                 f"- Year: {self.year} - File size: {self.file_size}\n")
 
-    def available_copy(self):
+    def available_copy(self) -> Self:
         return self

@@ -18,3 +18,7 @@ class NoBook(Exception):
 class InvalidNumberOfBooks(Exception):
     # Raise an exception when provide invalid number of books
     pass
+
+class UserWithItemsCannotBeUnregistered(Exception):
+    # Raise an exception when attempting to unregister a user with borrowed books
+    pass

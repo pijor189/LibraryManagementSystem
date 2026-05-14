@@ -2,9 +2,12 @@ from library.library_service import Library
 from library.book import Book, EBook
 from library.user import User
 from utils.data_loader import DataLoader
+from pathlib import Path
 import pytest
 
-def create_books():
+BASE_DIR = Path(__file__).resolve().parents[1]
+
+def create_books() -> tuple[list[Book], list[EBook]]:
     book1 = Book("1984", "George Orwell",
                  ["dystopian fiction", "political fiction", "science fiction"],1949)
     book2 = Book("Dune", "Frank Herbert",
@@ -35,7 +38,7 @@ def create_books():
     all_ebooks = [ebook1, ebook2, ebook3, ebook4]
     return all_books, all_ebooks
 
-def create_users():
+def create_users() -> list[User]:
     user1 = User("Jan Kowalski")
     user2 = User("Anna Nowak")
     user3 = User("Piotr Wiśniewski")
@@ -45,12 +48,10 @@ def create_users():
 @pytest.fixture(scope='function')
 def create_lib():
     lib = Library()
-    # mocki
-    # users = create_users()
-    # books, ebooks = create_books()
-    # zczytanie danych z json
-    users = DataLoader.load_users("data/users.json")
-    books, ebooks = DataLoader.load_books("data/books.json")
+    """users = create_users()
+    books, ebooks = create_books()"""
+    users = DataLoader.load_users(f"{BASE_DIR}/data/users.json")
+    books, ebooks = DataLoader.load_books(f"{BASE_DIR}/data/books.json")
     for book in books:
         lib.add_book(book)
     for ebook in ebooks:

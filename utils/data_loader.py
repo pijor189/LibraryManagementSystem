@@ -4,7 +4,7 @@ import json
 
 class DataLoader:
     @staticmethod
-    def load_books(path: str):
+    def load_books(path: str) -> tuple[list[Book], list[EBook]]:
         with open(path, "r", encoding='utf-8') as f:
             data = json.load(f)
 
@@ -24,7 +24,7 @@ class DataLoader:
         return books, ebooks
 
     @staticmethod
-    def load_users(path: str):
+    def load_users(path: str) -> list[User]:
         with open(path, "r", encoding='utf-8') as f:
             data = json.load(f)
 

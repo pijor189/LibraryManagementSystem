@@ -54,6 +54,8 @@ jobs:
 
 
   deploy:
+    permissions:
+      contents: write
     needs: test
     runs-on: ubuntu-latest
 

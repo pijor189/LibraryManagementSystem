@@ -64,11 +64,17 @@ jobs:
         name: junit-report
         path: report.xml
 
+    - name: Prepare dashboard
+      run: |
+        mkdir public
+        cp -r htmlcov public/coverage
+        cp pytest_report.html public/
+
     - name: Publish HTML report to GitHub Pages
       uses: peaceiris/actions-gh-pages@v4
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
-        publish_dir: ./htmlcov
+        publish_dir: ./public/
 
     - name: Write test summary
       run: |

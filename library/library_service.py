@@ -2,9 +2,15 @@ from .config import logger
 from .book import Book, EBook, BookCopy
 from .user import User
 from .loan import Loan
-from .exceptions import NoBook, NoUser, InvalidNumberOfBooks, UserWithItemsCannotBeUnregistered
+from .exceptions import (
+    NoBook,
+    NoUser,
+    InvalidNumberOfBooks,
+    UserWithItemsCannotBeUnregistered,
+)
 from utils.uid import generate_uid
 from datetime import datetime
+
 
 class Library:
     def __init__(self):
@@ -74,9 +80,13 @@ class Library:
         return user_in_list
 
     def check_book(self, book: Book) -> Book | EBook:
-        book_in_list = next((b for b in self.catalog if b.book_id == book.book_id), None)
+        book_in_list = next(
+            (b for b in self.catalog if b.book_id == book.book_id), None
+        )
         if not book_in_list:
-            raise NoBook(f"There is no book {book_in_list} matching the one you provided")
+            raise NoBook(
+                f"There is no book {book_in_list} matching the one you provided"
+            )
         return book_in_list
 
     def register_user(self, user: User) -> None:
@@ -93,18 +103,20 @@ class Library:
             raise
 
     def unregister_user(self, user: User) -> None:
-        """ Unregister a user from the library """
+        """Unregister a user from the library"""
         user_in_list = self.check_user(user)
 
         if user_in_list.borrowed_physical_books or user_in_list.borrowed_ebooks:
-            raise UserWithItemsCannotBeUnregistered(f"{user_in_list.name} has borrowed books")
+            raise UserWithItemsCannotBeUnregistered(
+                f"{user_in_list.name} has borrowed books"
+            )
 
         self.users_id.remove(user_in_list.id)
         self.users_list.remove(user_in_list)
 
     @staticmethod
     def choose_book(results: list[Book | EBook]) -> Book | EBook:
-        """ Allow the user to choose the book type when multiple matching books are found """
+        """Allow the user to choose the book type when multiple matching books are found"""
         if not results:
             raise NoBook("There is no book to choose from")
 
@@ -119,7 +131,9 @@ class Library:
         choice = int(input("Choose version: ")) - 1
         return results[choice]
 
-    def borrow(self, user: User, book: Book | list[Book], days: int = Loan.MAX_DAYS) -> None:
+    def borrow(
+        self, user: User, book: Book | list[Book], days: int = Loan.MAX_DAYS
+    ) -> None:
         try:
             # Check if the user exists
             user_in_list = self.check_user(user)
@@ -180,22 +194,29 @@ class Library:
                             break
                     b.is_available = True
                     b.loan = None
-                    logger.info(f"User {user_in_list.name} returned the book: {b.book.title} to the library")
+                    logger.info(
+                        f"User {user_in_list.name} returned the book: {b.book.title} to the library"
+                    )
                     # Check if there is any user waiting for this book
                     if book.waitlist:
                         self.process_waitlist(book)
                     break
             else:
-                raise NoBook(f"User {user_in_list.name} did not borrow a book like: {book}")
+                raise NoBook(
+                    f"User {user_in_list.name} did not borrow a book like: {book}"
+                )
         except (NoUser, NoBook) as e:
             logger.error(e)
             raise
 
     def return_all_items(self, user: User) -> None:
-        """ Return all items borrowed from the library """
+        """Return all items borrowed from the library"""
         user_in_list = self.check_user(user)
 
-        if not user_in_list.borrowed_physical_books and not user_in_list.borrowed_ebooks:
+        if (
+            not user_in_list.borrowed_physical_books
+            and not user_in_list.borrowed_ebooks
+        ):
             raise NoBook(f"{user_in_list.name} has not borrowed any items")
 
         for book in user_in_list.borrowed_physical_books:
@@ -204,15 +225,15 @@ class Library:
         user_in_list.borrowed_ebooks.clear()
 
     def get_all_books(self) -> list[Book | EBook]:
-        """ List all books in the library """
+        """List all books in the library"""
         return self.catalog
 
     def get_all_users(self) -> list[User]:
-        """ List all users in the library """
+        """List all users in the library"""
         return self.users_list
 
     def get_available_books(self) -> list[Book | EBook]:
-        """ List all books in the library that are currently available for borrowing """
+        """List all books in the library that are currently available for borrowing"""
         return [b for b in self.catalog if b.available_copy()]
 
     def find_user(self, user_name: str) -> User | None:
@@ -224,11 +245,13 @@ class Library:
             return None
 
     def find_book_by_name(self, book_name: str) -> list[Book | EBook] | None:
-        """ Check if such a book exists in the library, if yes, display it """
+        """Check if such a book exists in the library, if yes, display it"""
         result = []
         for book in self.catalog:
             if book_name.lower().strip() == book.title.lower().strip():
-                logger.info(f"{book} Available: {"True" if book.available_copy() else "False"}")
+                logger.info(
+                    f"{book} Available: {'True' if book.available_copy() else 'False'}"
+                )
                 result.append(book)
         if not result:
             logger.info(f"There is no book {book_name} matching the one you provided")
@@ -237,7 +260,7 @@ class Library:
             return result
 
     def find_books_by_genre(self, genre: str) -> list[Book | EBook]:
-        """ Check whether books by this genre exist and display them """
+        """Check whether books by this genre exist and display them"""
         result = []
         for book in self.catalog:
             if genre.lower().strip() in [b.lower().strip() for b in book.genre]:
@@ -249,7 +272,7 @@ class Library:
         return result
 
     def find_books_by_author(self, author: str) -> list[Book | EBook]:
-        """ Check whether books by this author exist and display them """
+        """Check whether books by this author exist and display them"""
         result = []
         for book in self.catalog:
             if author.lower().strip() == book.author.lower().strip():
@@ -261,8 +284,8 @@ class Library:
         return result
 
     def add_to_waitlist(self, user: User, book: Book) -> None:
-        """ If the book is borrowed, add the user to the list. Otherwise, check if a user who exceeded the borrowing
-            limit tried to borrow it, and add them to the list """
+        """If the book is borrowed, add the user to the list. Otherwise, check if a user who exceeded the borrowing
+        limit tried to borrow it, and add them to the list"""
         if not book.available_copy() or len(user.borrowed_physical_books) > 2:
             if self.check_waitlist(user, book):
                 book.waitlist.append(user)
@@ -271,14 +294,14 @@ class Library:
 
     @staticmethod
     def check_waitlist(user: User, book: Book) -> bool:
-        """ Check if the user already exists in the waitlist """
+        """Check if the user already exists in the waitlist"""
         if any(u.id == user.id for u in book.waitlist):
             logger.info(f"User {user} already exists in the waitlist")
             return False
         return True
 
     def process_waitlist(self, book: Book) -> None:
-        """ Handle the queue and see if any user is eligible to borrow the book """
+        """Handle the queue and see if any user is eligible to borrow the book"""
         for i, u in enumerate(book.waitlist):
             if len(u.borrowed_physical_books) < 3:
                 next_user = book.waitlist.pop(i)

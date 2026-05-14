@@ -6,6 +6,7 @@ from library.loan import Loan
 from typing import Any
 import os
 
+
 def init_library() -> Library:
     lib = Library()
     users = DataLoader.load_users("data/users.json")
@@ -19,12 +20,15 @@ def init_library() -> Library:
 
     return lib
 
+
 def clear_console() -> None:
     os.system("cls" if os.name == "nt" else "clear")
+
 
 def show(data: Any) -> None:
     for d in data:
         print(d)
+
 
 def menu(lib: Library, user: User, option: int) -> bool:
     if option == 1:
@@ -47,16 +51,23 @@ def menu(lib: Library, user: User, option: int) -> bool:
         print("Wrong option")
     return True
 
+
 def find_book_options(lib: Library) -> None:
     running = True
 
     while running:
         clear_console()
-        show(["1. Find book by a name", "2. Find book by a genre",
-              "3. Find book by an author", "4. Back to menu"])
+        show(
+            [
+                "1. Find book by a name",
+                "2. Find book by a genre",
+                "3. Find book by an author",
+                "4. Back to menu",
+            ]
+        )
         number = int(input("Select: "))
 
-        if not isinstance(number, int) or number not in range(1,5):
+        if not isinstance(number, int) or number not in range(1, 5):
             print("Not valid number, choose again")
             input("\nPress ENTER to continue...")
         else:
@@ -71,10 +82,12 @@ def find_book_options(lib: Library) -> None:
                 show(lib.find_books_by_author(author))
             running = False
 
+
 def find_user_option(lib: Library) -> None:
     user_name = input("Name a user what you want to find: ")
     result = lib.find_user(user_name)
     print(result if result else f"{user_name} does not exist")
+
 
 def borrow_option(lib: Library, user: User) -> None:
     book_name = input("Name a book what you want to borrow: ")
@@ -85,12 +98,17 @@ def borrow_option(lib: Library, user: User) -> None:
     if not isinstance(book, EBook):
         running = True
         while running:
-            days = int(input("How many days would you like to borrow this book for? (Maximum: 30 days): "))
+            days = int(
+                input(
+                    "How many days would you like to borrow this book for? (Maximum: 30 days): "
+                )
+            )
             if days <= 0 or days > 30:
                 print("You have provided invalid count of days")
             else:
                 running = False
     lib.borrow(user, book, days)
+
 
 def extend_option(lib: Library, user: User) -> None:
     days = Loan.MAX_DAYS
@@ -104,8 +122,12 @@ def extend_option(lib: Library, user: User) -> None:
             if user.id == loan.user.id and loan.book in book[0].copies:
                 running = True
                 while running:
-                    days = int(input("How many days would you like to extend this book for?"
-                                     " (Maximum: 30 days): "))
+                    days = int(
+                        input(
+                            "How many days would you like to extend this book for?"
+                            " (Maximum: 30 days): "
+                        )
+                    )
                     if days <= 0 or days > 30:
                         print("You have provided invalid count of days")
                     else:
@@ -113,6 +135,7 @@ def extend_option(lib: Library, user: User) -> None:
                 loan.extend(days)
     else:
         print("You dont have any books that you can extend")
+
 
 def return_option(lib: Library, user: User) -> None:
     if user.borrowed_physical_books:

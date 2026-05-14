@@ -1,5 +1,6 @@
 from .exceptions import InvalidUser
 
+
 class User:
     def __init__(self, name: str):
         if not isinstance(name, str) or name.strip() == "":

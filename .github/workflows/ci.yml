@@ -30,6 +30,14 @@ jobs:
           pip install -r requirements.txt
           pip install pytest pytest-cov pytest-html
 
+      - name: Lint with Ruff
+        run: |
+          ruff check . --output-format=github
+
+      - name: Format check with Ruff
+        run: |
+          ruff format . --check
+
       - name: Run tests with reports
         run: |
           pytest tests/ -vv \

@@ -2,6 +2,7 @@ from library.user import User
 from library.book import Book, EBook
 from datetime import datetime, timedelta
 
+
 class Loan:
     MAX_DAYS = 30
 

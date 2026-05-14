@@ -15,15 +15,16 @@ if __name__ == "__main__":
         print(e)
         exit()
 
-    options = ["1. Show all books",
-               "2. Show available books",
-               "3. Find a book",
-               "4. Find a user",
-               "5. Borrow a book",
-               "6. Extend book loan",
-               "7. Return a book",
-               "8. Exit"
-               ]
+    options = [
+        "1. Show all books",
+        "2. Show available books",
+        "3. Find a book",
+        "4. Find a user",
+        "5. Borrow a book",
+        "6. Extend book loan",
+        "7. Return a book",
+        "8. Exit",
+    ]
     running = True
 
     while running:

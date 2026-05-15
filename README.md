@@ -1,6 +1,6 @@
 # Library Management System
 ![CI Pipeline](https://github.com/pijor189/LibraryManagementSystem/actions/workflows/ci.yml/badge.svg)
-[![codecov](https://codecov.io/gh/USER/REPO/branch/main/graph/badge.svg)](https://codecov.io/gh/USER/REPO)
+[![codecov](https://codecov.io/gh/pijor189/LibraryManagementSystem/graph/badge.svg?token=9ef1c7fa-c6f8-403a-b0cc-d568e7e48f1c)](https://codecov.io/gh/pijor189/LibraryManagementSystem)
 
 A Python-based Library Management System for creating and managing books, users, and libraries.  
 The application allows organizing collections efficiently while demonstrating object-oriented design, JSON-based persistence, and automated testing practices.

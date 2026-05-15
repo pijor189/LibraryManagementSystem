@@ -40,7 +40,7 @@ jobs:
 
       - name: Run tests with reports
         run: |
-          pytest tests/ -vv \
+          pytest tests/ --nightly -vv \
             --log-cli-level=INFO \
             --capture=tee-sys \
             --html=pytest_report.html \

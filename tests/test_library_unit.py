@@ -29,7 +29,6 @@ def test_create_lib(create_lib):
 """
 
 
-@pytest.mark.smoke
 @pytest.mark.regression
 def test_invalid_user():
     with pytest.raises(InvalidUser):
@@ -41,7 +40,6 @@ def test_invalid_user():
 """
 
 
-@pytest.mark.smoke
 @pytest.mark.regression
 def test_invalid_book_invalid_title():
     with pytest.raises(InvalidBook):
@@ -53,7 +51,6 @@ def test_invalid_book_invalid_title():
 """
 
 
-@pytest.mark.smoke
 @pytest.mark.regression
 def test_invalid_book_empty_title():
     with pytest.raises(InvalidBook):
@@ -65,7 +62,6 @@ def test_invalid_book_empty_title():
 """
 
 
-@pytest.mark.smoke
 @pytest.mark.regression
 def test_invalid_book_empty_author():
     with pytest.raises(InvalidBook):
@@ -77,7 +73,6 @@ def test_invalid_book_empty_author():
 """
 
 
-@pytest.mark.smoke
 @pytest.mark.regression
 def test_invalid_book_invalid_author():
     with pytest.raises(InvalidBook):
@@ -89,7 +84,6 @@ def test_invalid_book_invalid_author():
 """
 
 
-@pytest.mark.smoke
 @pytest.mark.regression
 def test_invalid_book_empty_genre_str():
     with pytest.raises(InvalidBook):
@@ -101,7 +95,6 @@ def test_invalid_book_empty_genre_str():
 """
 
 
-@pytest.mark.smoke
 @pytest.mark.regression
 def test_invalid_book_empty_genre_list():
     with pytest.raises(InvalidBook):
@@ -113,7 +106,6 @@ def test_invalid_book_empty_genre_list():
 """
 
 
-@pytest.mark.smoke
 @pytest.mark.regression
 def test_invalid_book_invalid_genre():
     with pytest.raises(InvalidBook):
@@ -125,7 +117,6 @@ def test_invalid_book_invalid_genre():
 """
 
 
-@pytest.mark.smoke
 @pytest.mark.regression
 def test_invalid_book_invalid_amout():
     with pytest.raises(InvalidBook):
@@ -137,7 +128,6 @@ def test_invalid_book_invalid_amout():
 """
 
 
-@pytest.mark.smoke
 @pytest.mark.regression
 def test_invalid_ebook_invalid_file_size():
     with pytest.raises(InvalidBook):
@@ -149,7 +139,6 @@ def test_invalid_ebook_invalid_file_size():
 """
 
 
-@pytest.mark.smoke
 @pytest.mark.regression
 def test_invalid_ebook_too_small_file_size():
     with pytest.raises(InvalidBook):
@@ -161,7 +150,6 @@ def test_invalid_ebook_too_small_file_size():
 """
 
 
-@pytest.mark.smoke
 @pytest.mark.regression
 def test_book_not_provided_to_add(create_lib, caplog):
     lib = create_lib
@@ -176,7 +164,6 @@ def test_book_not_provided_to_add(create_lib, caplog):
 """
 
 
-@pytest.mark.smoke
 @pytest.mark.regression
 def test_user_not_provided_to_register(create_lib, caplog):
     lib = create_lib
@@ -191,7 +178,6 @@ def test_user_not_provided_to_register(create_lib, caplog):
 """
 
 
-@pytest.mark.smoke
 @pytest.mark.regression
 def test_not_register_user_provided_to_borrow(create_lib, caplog):
     lib = create_lib
@@ -208,7 +194,6 @@ def test_not_register_user_provided_to_borrow(create_lib, caplog):
 """
 
 
-@pytest.mark.smoke
 @pytest.mark.regression
 def test_not_added_book_provided_to_borrow(create_lib, caplog):
     lib = create_lib
@@ -230,7 +215,6 @@ def test_not_added_book_provided_to_borrow(create_lib, caplog):
 """
 
 
-@pytest.mark.smoke
 @pytest.mark.regression
 def test_not_valid_data_provided_to_borrow(create_lib, caplog):
     lib = create_lib
@@ -247,7 +231,6 @@ def test_not_valid_data_provided_to_borrow(create_lib, caplog):
 """
 
 
-@pytest.mark.smoke
 @pytest.mark.regression
 def test_not_register_user_provided_to_return_book(create_lib, caplog):
     lib = create_lib
@@ -264,7 +247,6 @@ def test_not_register_user_provided_to_return_book(create_lib, caplog):
 """
 
 
-@pytest.mark.smoke
 @pytest.mark.regression
 def test_not_borrowed_book_provided_to_return_book(create_lib, caplog):
     lib = create_lib
@@ -281,7 +263,6 @@ def test_not_borrowed_book_provided_to_return_book(create_lib, caplog):
 """
 
 
-@pytest.mark.smoke
 @pytest.mark.regression
 def test_invalid_book_to_add_more_copies(create_lib, caplog):
     lib = create_lib
@@ -302,7 +283,6 @@ def test_invalid_book_to_add_more_copies(create_lib, caplog):
 """
 
 
-@pytest.mark.smoke
 @pytest.mark.regression
 def test_invalid_number_books_add(create_lib, caplog):
     lib = create_lib
@@ -318,7 +298,6 @@ def test_invalid_number_books_add(create_lib, caplog):
 """
 
 
-@pytest.mark.smoke
 @pytest.mark.regression
 def test_invalid_extend_loan(create_lib):
     lib = create_lib
@@ -335,7 +314,6 @@ def test_invalid_extend_loan(create_lib):
 """
 
 
-@pytest.mark.smoke
 @pytest.mark.regression
 def test_no_book_to_choose(create_lib):
     lib = create_lib
@@ -349,7 +327,6 @@ def test_no_book_to_choose(create_lib):
 """
 
 
-@pytest.mark.smoke
 @pytest.mark.regression
 def test_choose_with_one_option(create_lib):
     lib = create_lib
@@ -363,7 +340,6 @@ def test_choose_with_one_option(create_lib):
 """
 
 
-@pytest.mark.smoke
 @pytest.mark.regression
 def test_choose_with_more_option(create_lib):
     lib = create_lib
@@ -378,7 +354,6 @@ def test_choose_with_more_option(create_lib):
 """
 
 
-@pytest.mark.smoke
 @pytest.mark.regression
 def test_matching_book_by_name(create_lib):
     lib = create_lib
@@ -391,7 +366,6 @@ def test_matching_book_by_name(create_lib):
 """
 
 
-@pytest.mark.smoke
 @pytest.mark.regression
 def test_no_matching_book_by_name(create_lib):
     lib = create_lib
@@ -404,7 +378,6 @@ def test_no_matching_book_by_name(create_lib):
 """
 
 
-@pytest.mark.smoke
 @pytest.mark.regression
 def test_matching_book_by_genre(create_lib):
     lib = create_lib
@@ -417,7 +390,6 @@ def test_matching_book_by_genre(create_lib):
 """
 
 
-@pytest.mark.smoke
 @pytest.mark.regression
 def test_no_matching_book_by_genre(create_lib):
     lib = create_lib
@@ -430,7 +402,6 @@ def test_no_matching_book_by_genre(create_lib):
 """
 
 
-@pytest.mark.smoke
 @pytest.mark.regression
 def test_matching_book_by_author(create_lib):
     lib = create_lib
@@ -443,7 +414,6 @@ def test_matching_book_by_author(create_lib):
 """
 
 
-@pytest.mark.smoke
 @pytest.mark.regression
 def test_no_matching_book_by_author(create_lib):
     lib = create_lib
@@ -456,7 +426,6 @@ def test_no_matching_book_by_author(create_lib):
 """
 
 
-@pytest.mark.smoke
 @pytest.mark.regression
 def test_find_existing_user(create_lib):
     lib = create_lib
@@ -469,7 +438,6 @@ def test_find_existing_user(create_lib):
 """
 
 
-@pytest.mark.smoke
 @pytest.mark.regression
 def test_find_nonexistent_user(create_lib):
     lib = create_lib
@@ -482,7 +450,6 @@ def test_find_nonexistent_user(create_lib):
 """
 
 
-@pytest.mark.smoke
 @pytest.mark.regression
 def test_borrow_unavailable_book_twice(create_lib):
     lib = create_lib
@@ -503,7 +470,6 @@ def test_borrow_unavailable_book_twice(create_lib):
 """
 
 
-@pytest.mark.smoke
 @pytest.mark.regression
 def test_unregister_nonexistent_user(create_lib):
     lib = create_lib
@@ -517,7 +483,6 @@ def test_unregister_nonexistent_user(create_lib):
 """
 
 
-@pytest.mark.smoke
 @pytest.mark.regression
 def test_attempt_to_borrow_four_books(create_lib):
     lib = create_lib

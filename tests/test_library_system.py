@@ -9,7 +9,6 @@ import pytest
 """
 
 
-@pytest.mark.smoke
 @pytest.mark.regression
 def test_extend_ebook(create_lib):
     # step 1
@@ -33,7 +32,6 @@ def test_extend_ebook(create_lib):
 """
 
 
-@pytest.mark.smoke
 @pytest.mark.regression
 def test_extend_book(create_lib):
     # step 1
@@ -57,7 +55,6 @@ def test_extend_book(create_lib):
 """
 
 
-@pytest.mark.smoke
 @pytest.mark.regression
 def test_extend_book_above_limit(create_lib):
     # step 1
@@ -83,7 +80,6 @@ def test_extend_book_above_limit(create_lib):
 """
 
 
-@pytest.mark.smoke
 @pytest.mark.regression
 def test_unregister_user(create_lib):
     # step 1
@@ -115,7 +111,6 @@ def test_unregister_user(create_lib):
 """
 
 
-@pytest.mark.smoke
 @pytest.mark.regression
 def test_unregister_user_with_items_in_list(create_lib):
     # step 1
@@ -142,7 +137,6 @@ def test_unregister_user_with_items_in_list(create_lib):
 """
 
 
-@pytest.mark.smoke
 @pytest.mark.regression
 def test_get_available_books(create_lib):
     # step 1
@@ -235,8 +229,6 @@ def test_add_more_books(create_lib):
 """
 
 
-@pytest.mark.smoke
-@pytest.mark.regression
 @pytest.mark.nightly
 def test_borrow_book_and_process_waitlist(create_lib):
     # step 1
@@ -308,8 +300,6 @@ def test_borrow_book_and_process_waitlist(create_lib):
 """
 
 
-@pytest.mark.smoke
-@pytest.mark.regression
 @pytest.mark.nightly
 def test_process_waitlist_for_more_users(create_lib):
     # step 1

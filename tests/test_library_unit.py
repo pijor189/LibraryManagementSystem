@@ -20,6 +20,7 @@ import pytest
 @pytest.mark.smoke
 def test_create_lib(create_lib):
     lib = create_lib
+    print(lib)
     assert len(lib.get_all_books()) == 10 + 4
     assert len(lib.get_all_users()) == 3
 
@@ -143,6 +144,19 @@ def test_invalid_ebook_invalid_file_size():
 def test_invalid_ebook_too_small_file_size():
     with pytest.raises(InvalidBook):
         EBook("Krzyżacy", "Henryk Sienkiewicz", "historical fiction", 1900, -1)
+
+
+"""
+    Return book with empty borrowed books list
+"""
+
+
+@pytest.mark.regression
+def test_return_books_with_empty_list(create_lib):
+    lib = create_lib
+    user = lib.users_list[0]
+    with pytest.raises(NoBook):
+        lib.return_all_items(user)
 
 
 """
@@ -294,6 +308,20 @@ def test_invalid_number_books_add(create_lib, caplog):
 
 
 """
+    Invalid number of days to borrow a book
+"""
+
+
+@pytest.mark.regression
+def test_borrow_book_invalid_days(create_lib):
+    lib = create_lib
+    user = lib.users_list[0]
+    book = lib.catalog[0]
+    with pytest.raises(ValueError):
+        lib.borrow(user, book, 0)
+
+
+"""
     Invalid number of days to extend a loan
 """
 
@@ -305,6 +333,7 @@ def test_invalid_extend_loan(create_lib):
     book = lib.catalog[0]
     lib.borrow(user, book)
     loan = lib.loans[0]
+    print(loan)
     with pytest.raises(ValueError):
         loan.extend(-1)
 

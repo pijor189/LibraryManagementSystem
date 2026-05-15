@@ -149,8 +149,7 @@ class Library:
                 self.borrow_ebook(user_in_list, book_in_list)
             elif isinstance(book_in_list, Book):
                 self.borrow_book(user_in_list, book_in_list, days)
-            else:
-                raise
+
         except Exception as e:
             logger.error(f"Another problem: {e}")
             raise

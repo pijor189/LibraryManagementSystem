@@ -40,13 +40,19 @@ jobs:
 
       - name: Run tests with reports
         run: |
-          pytest tests/ --nightly -vv \
+          pytest tests/ 
+            --nightly -vv \
             --log-cli-level=INFO \
             --capture=tee-sys \
             --html=pytest_report.html \
             --self-contained-html \
             --cov=library \
             --cov-report=html
+
+      - name: Upload coverage reports to Codecov
+        uses: codecov/codecov-action@v5
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
 
       - name: Prepare dashboard
         run: |

@@ -168,6 +168,7 @@ def test_return_book(create_lib):
 
     # step 2
     lib.borrow(user, book)
+    print(user.borrowed_physical_books[0])
     assert len(user.borrowed_physical_books) == 1
     assert any(b in user.borrowed_physical_books for b in book.copies)
 

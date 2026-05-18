@@ -1,5 +1,5 @@
 from library.user import User
-from library.book import Book, EBook
+from library.book import Book, EBook, BookCopy
 from library.exceptions import (
     InvalidUser,
     InvalidBook,
@@ -8,7 +8,6 @@ from library.exceptions import (
     InvalidNumberOfBooks,
 )
 from unittest.mock import patch
-import logging
 import pytest
 
 
@@ -165,12 +164,10 @@ def test_return_books_with_empty_list(create_lib):
 
 
 @pytest.mark.regression
-def test_book_not_provided_to_add(create_lib, caplog):
+def test_book_not_provided_to_add(create_lib):
     lib = create_lib
-    with caplog.at_level(logging.ERROR):
-        with pytest.raises(NoBook):
-            lib.add_book("Potop")
-    assert caplog.records[0].levelname == "ERROR"
+    with pytest.raises(NoBook):
+        lib.add_book("Potop")
 
 
 """
@@ -179,12 +176,10 @@ def test_book_not_provided_to_add(create_lib, caplog):
 
 
 @pytest.mark.regression
-def test_user_not_provided_to_register(create_lib, caplog):
+def test_user_not_provided_to_register(create_lib):
     lib = create_lib
-    with caplog.at_level(logging.ERROR):
-        with pytest.raises(NoUser):
-            lib.register_user("Krzysztof")
-    assert caplog.records[0].levelname == "ERROR"
+    with pytest.raises(NoUser):
+        lib.register_user("Krzysztof")
 
 
 """
@@ -197,10 +192,8 @@ def test_not_register_user_provided_to_borrow(create_lib, caplog):
     lib = create_lib
     user = User("Adam Nowak")
     book = lib.catalog[0]
-    with caplog.at_level(logging.ERROR):
-        with pytest.raises(NoUser):
-            lib.borrow(user, book)
-    assert caplog.records[0].levelname == "ERROR"
+    with pytest.raises(NoUser):
+        lib.borrow(user, book)
 
 
 """
@@ -209,7 +202,7 @@ def test_not_register_user_provided_to_borrow(create_lib, caplog):
 
 
 @pytest.mark.regression
-def test_not_added_book_provided_to_borrow(create_lib, caplog):
+def test_not_added_book_provided_to_borrow(create_lib):
     lib = create_lib
     user = lib.users_list[0]
     book = Book(
@@ -218,10 +211,8 @@ def test_not_added_book_provided_to_borrow(create_lib, caplog):
         ["non-fiction", "history", "technology", "society", "artificial intelligence"],
         2024,
     )
-    with caplog.at_level(logging.ERROR):
-        with pytest.raises(NoBook):
-            lib.borrow(user, book)
-    assert caplog.records[0].levelname == "ERROR"
+    with pytest.raises(NoBook):
+        lib.borrow(user, book)
 
 
 """
@@ -230,14 +221,12 @@ def test_not_added_book_provided_to_borrow(create_lib, caplog):
 
 
 @pytest.mark.regression
-def test_not_valid_data_provided_to_borrow(create_lib, caplog):
+def test_not_valid_data_provided_to_borrow(create_lib):
     lib = create_lib
     user = "Adam Nowak"
     book = lib.catalog[0]
-    with caplog.at_level(logging.ERROR):
-        with pytest.raises(Exception):
-            lib.borrow(user, book)
-    assert caplog.records[0].levelname == "ERROR"
+    with pytest.raises(Exception):
+        lib.borrow(user, book)
 
 
 """
@@ -246,14 +235,12 @@ def test_not_valid_data_provided_to_borrow(create_lib, caplog):
 
 
 @pytest.mark.regression
-def test_not_register_user_provided_to_return_book(create_lib, caplog):
+def test_not_register_user_provided_to_return_book(create_lib):
     lib = create_lib
     user = User("Adam Nowak")
     book = lib.catalog[0]
-    with caplog.at_level(logging.ERROR):
-        with pytest.raises(NoUser):
-            lib.return_book(user, book)
-    assert caplog.records[0].levelname == "ERROR"
+    with pytest.raises(NoUser):
+        lib.return_book(user, book)
 
 
 """
@@ -262,14 +249,12 @@ def test_not_register_user_provided_to_return_book(create_lib, caplog):
 
 
 @pytest.mark.regression
-def test_not_borrowed_book_provided_to_return_book(create_lib, caplog):
+def test_not_borrowed_book_provided_to_return_book(create_lib):
     lib = create_lib
     user = lib.users_list[0]
     book = lib.catalog[0]
-    with caplog.at_level(logging.ERROR):
-        with pytest.raises(NoBook):
-            lib.return_book(user, book)
-    assert caplog.records[0].levelname == "ERROR"
+    with pytest.raises(NoBook):
+        lib.return_book(user, book)
 
 
 """
@@ -278,7 +263,7 @@ def test_not_borrowed_book_provided_to_return_book(create_lib, caplog):
 
 
 @pytest.mark.regression
-def test_invalid_book_to_add_more_copies(create_lib, caplog):
+def test_invalid_book_to_add_more_copies(create_lib):
     lib = create_lib
     book = Book(
         "Nexus",
@@ -286,10 +271,8 @@ def test_invalid_book_to_add_more_copies(create_lib, caplog):
         ["non-fiction", "history", "technology", "society", "artificial intelligence"],
         2024,
     )
-    with caplog.at_level(logging.ERROR):
-        with pytest.raises(NoBook):
-            lib.add_existing_book(book, 1)
-    assert caplog.records[0].levelname == "ERROR"
+    with pytest.raises(NoBook):
+        lib.add_existing_book(book, 1)
 
 
 """
@@ -298,13 +281,11 @@ def test_invalid_book_to_add_more_copies(create_lib, caplog):
 
 
 @pytest.mark.regression
-def test_invalid_number_books_add(create_lib, caplog):
+def test_invalid_number_books_add(create_lib):
     lib = create_lib
     book = lib.catalog[0]
-    with caplog.at_level(logging.ERROR):
-        with pytest.raises(InvalidNumberOfBooks):
-            lib.add_existing_book(book, 0)
-    assert caplog.records[0].levelname == "ERROR"
+    with pytest.raises(InvalidNumberOfBooks):
+        lib.add_existing_book(book, 0)
 
 
 """
@@ -522,3 +503,48 @@ def test_attempt_to_borrow_four_books(create_lib):
             break
     assert len(user.borrowed_physical_books) == 3
     assert user.waitlist is not None
+
+
+"""
+    Attempt to remove a not available book copy from the library
+"""
+
+
+@pytest.mark.regression
+def test_attempt_remove_not_available_book_copy(create_lib):
+    lib = create_lib
+    book_copy = lib.catalog[0].copies[0]
+    book_copy.is_available = False
+    with pytest.raises(NoBook):
+        lib.remove_book_copy(book_copy)
+
+
+"""
+    Attempt to remove a nonexistent book from the library
+"""
+
+
+@pytest.mark.regression
+def test_attempt_remove_nonexistent_book(create_lib):
+    lib = create_lib
+    book = Book(
+        "Nexus",
+        "Yuval Noah Harari",
+        ["non-fiction", "history", "technology", "society", "artificial intelligence"],
+        2024,
+    )
+    with pytest.raises(NoBook):
+        lib.remove_book(book)
+
+
+"""
+    Attempt to remove a nonexistent book copy from the library
+"""
+
+
+@pytest.mark.regression
+def test_attempt_remove_nonexistent_book_copy(create_lib):
+    lib = create_lib
+    book_copy = BookCopy(lib.catalog[0])
+    with pytest.raises(NoBook):
+        lib.remove_book_copy(book_copy)

@@ -1,5 +1,4 @@
 from .exceptions import InvalidBook
-from utils.uid import generate_uid_book
 from typing import Self
 
 
@@ -30,7 +29,7 @@ class Book:
         self.genre = genre
         self.year = year
         self.amount = amount
-        self.book_id = generate_uid_book()
+        self.id = 0
         self.copies = []
         self.waitlist = []
 

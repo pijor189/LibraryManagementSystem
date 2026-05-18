@@ -1,5 +1,5 @@
 from library.user import User
-from library.exceptions import UserWithItemsCannotBeUnregistered
+from library.exceptions import UserWithItemsCannotBeUnregistered, NoBook
 import pytest
 
 
@@ -210,12 +210,60 @@ def test_add_more_books(create_lib):
     lib = create_lib
     book = lib.catalog[0]
     assert book.amount == 1
-    assert len(lib.books_id) == 14
+    assert len(lib.book_copy_id) == 10
 
     # step 2
     lib.add_existing_book(book, 1)
     assert book.amount == 2
-    assert len(lib.books_id) == 15
+    assert len(lib.book_copy_id) == 11
+
+"""
+    1. Create a library and let the user borrow a book
+    2. Attempt to remove the book from the library
+    3. User return a book and then the library can remove it from the catalog
+"""
+
+
+@pytest.mark.regression
+def test_remove_book(create_lib):
+    # step 1
+    lib = create_lib
+    book = lib.catalog[0]
+    user = lib.users_list[0]
+    lib.borrow(user, book)
+    assert user.borrowed_physical_books
+
+    # step 2
+    with pytest.raises(NoBook):
+        lib.remove_book(book)
+    assert len(lib.catalog) == 14
+    assert user.borrowed_physical_books
+
+    # step 3
+    lib.return_book(user, book)
+    lib.remove_book(book)
+    assert len(lib.catalog) == 13
+    assert not user.borrowed_physical_books
+
+
+"""
+    1. Create a library and let the user borrow an ebook
+    2. Remove the ebook from the library and from the user's ebook list
+"""
+
+
+@pytest.mark.regression
+def test_remove_ebook(create_lib):
+    # step 1
+    lib = create_lib
+    book = lib.catalog[13]
+    user = lib.users_list[0]
+    lib.borrow(user, book)
+
+    # step 2
+    lib.remove_book(book)
+    assert not user.borrowed_ebooks
+    assert len(lib.catalog) == 13
 
 
 """

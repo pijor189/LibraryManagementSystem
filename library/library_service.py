@@ -16,6 +16,7 @@ class Library:
     def __init__(self):
         self.catalog = []
         self.books_id = set()
+        self.book_copy_id = set()
         self.users_list = []
         self.users_id = set()
         self.loans = []
@@ -24,54 +25,60 @@ class Library:
         return f"List of books: {self.catalog}\nUsers: {self.users_list}"
 
     def add_book(self, book: Book) -> None:
-        try:
-            # Check if the book exists
-            if isinstance(book, EBook):
-                self.catalog.append(book)
-                book.id = generate_uid(self.books_id)
-                logger.info(f"EBook: {book.title} was added to the library")
-            elif isinstance(book, Book):
-                self.catalog.append(book)
-                for _ in range(book.amount):
-                    book_copy = BookCopy(book)
-                    book_copy.id = generate_uid(self.books_id)
-                    book.copies.append(book_copy)
-                logger.info(f"Book: {book.title} was added to the library")
-            else:
-                raise NoBook(f"There is no book {book} matching the one you provided")
-        except NoBook as e:
-            logger.error(e)
-            raise
+        # Check if the book exists
+        if isinstance(book, EBook):
+            self.catalog.append(book)
+            book.id = generate_uid(self.books_id)
+            logger.info(f"EBook: {book.title} was added to the library")
+        elif isinstance(book, Book):
+            self.catalog.append(book)
+            book.id = generate_uid(self.books_id)
+            for _ in range(book.amount):
+                book_copy = BookCopy(book)
+                book_copy.id = generate_uid(self.book_copy_id)
+                book.copies.append(book_copy)
+            logger.info(f"Book: {book.title} was added to the library")
+        else:
+            raise NoBook(f"There is no book {book} matching the one you provided")
 
     def add_existing_book(self, book: Book, amount) -> None:
-        try:
-            book_in_list = self.check_book(book)
-            if amount < 1:
-                raise InvalidNumberOfBooks("Invalid number of books to add")
-            for _ in range(amount):
-                book_copy = BookCopy(book_in_list)
-                book_copy.id = generate_uid(self.books_id)
-                book_in_list.copies.append(book_copy)
-            book_in_list.amount += amount
-        except (NoBook, InvalidNumberOfBooks) as e:
-            logger.error(e)
-            raise
+        book_in_list = self.check_book(book)
+        if amount < 1:
+            raise InvalidNumberOfBooks("Invalid number of books to add")
+        for _ in range(amount):
+            book_copy = BookCopy(book_in_list)
+            book_copy.id = generate_uid(self.book_copy_id)
+            book_in_list.copies.append(book_copy)
+        book_in_list.amount += amount
 
-    def remove_existing_book(self, book: Book, all_copies: bool, amount: int = 0):
-        # TODO przemyśleć takie tematy jak:
-        # co jeśli nie wszystkie książki do usunięcia są dostępne (wypozyczone)
-        #   - czy usuwać te co są dostępne resztę pozostawić i jakoś flagą oznaczyć, że jak zwrocą to usunać
-        #   - czy zwrócic wyjatek, ze nie da sie usunac bo nie wszystkie sa dostepne
-        # w przypadku jesli chcemy usunac tylko kilka, to nalezaloby podac konkretne id ktorych,
-        # bo moze chodzi o egzemplarz ktory sie uszkodzil, wiec nie moze to byc randomowy (ID)
-        # TODO
-        # try:
-        #     book_in_list = self.check_book(book)
-        #     if all_copies:
-        #         pass
-        # except NoBook as e:
-        #     logger.error(e)
-        pass
+    def remove_book_copy(self, book: BookCopy) -> None:
+        """Remove the book copy from the library"""
+        if book.id not in self.book_copy_id:
+            raise NoBook("There is no book like that in the library")
+        if not book.is_available:
+            raise NoBook("The book is not available and cannot be removed")
+        self.book_copy_id.remove(book.id)
+
+    def remove_book(self, book: Book) -> None:
+        """Remove the original item and all copies if it is a physical version"""
+        if book.id not in self.books_id:
+            raise NoBook("There is no book like that in the library")
+        if isinstance(book, EBook):
+            for l in self.loans:
+                if book == l.book:
+                    l.user.borrowed_ebooks.remove(book)
+            self.books_id.remove(book.id)
+            self.catalog.remove(book)
+        elif isinstance(book, Book):
+            # first check if all copies are available
+            for b in book.copies:
+                if not b.is_available:
+                    raise NoBook("The book is not available and cannot be removed")
+            # if all copies are available, remove them and the original item
+            for b in book.copies:
+                self.remove_book_copy(b)
+            self.books_id.remove(book.id)
+            self.catalog.remove(book)
 
     def check_user(self, user: User) -> User:
         user_in_list = next((u for u in self.users_list if u.id == user.id), None)
@@ -81,7 +88,7 @@ class Library:
 
     def check_book(self, book: Book) -> Book | EBook:
         book_in_list = next(
-            (b for b in self.catalog if b.book_id == book.book_id), None
+            (b for b in self.catalog if b.id == book.id), None
         )
         if not book_in_list:
             raise NoBook(
@@ -90,17 +97,13 @@ class Library:
         return book_in_list
 
     def register_user(self, user: User) -> None:
-        try:
-            # Check if the user exists
-            if isinstance(user, User):
-                self.users_list.append(user)
-                user.id = generate_uid(self.users_id)
-                logger.info(f"User: {user.name} was registered in library")
-            else:
-                raise NoUser(f"There is no user {user} matching the one you provided")
-        except NoUser as e:
-            logger.error(e)
-            raise
+        # Check if the user exists
+        if isinstance(user, User):
+            self.users_list.append(user)
+            user.id = generate_uid(self.users_id)
+            logger.info(f"User: {user.name} was registered in library")
+        else:
+            raise NoUser(f"There is no user {user} matching the one you provided")
 
     def unregister_user(self, user: User) -> None:
         """Unregister a user from the library"""
@@ -139,20 +142,15 @@ class Library:
     def borrow(
         self, user: User, book: Book | list[Book], days: int = Loan.MAX_DAYS
     ) -> None:
-        try:
-            # Check if the user exists
-            user_in_list = self.check_user(user)
-            # Check if the book exists
-            book_in_list = self.check_book(book)
+        # Check if the user exists
+        user_in_list = self.check_user(user)
+        # Check if the book exists
+        book_in_list = self.check_book(book)
 
-            if isinstance(book_in_list, EBook):
-                self.borrow_ebook(user_in_list, book_in_list)
-            elif isinstance(book_in_list, Book):
-                self.borrow_book(user_in_list, book_in_list, days)
-
-        except Exception as e:
-            logger.error(f"Another problem: {e}")
-            raise
+        if isinstance(book_in_list, EBook):
+            self.borrow_ebook(user_in_list, book_in_list)
+        elif isinstance(book_in_list, Book):
+            self.borrow_book(user_in_list, book_in_list, days)
 
     def borrow_ebook(self, user: User, ebook: EBook) -> None:
         user.borrowed_ebooks.append(ebook)
@@ -186,32 +184,28 @@ class Library:
             self.add_to_waitlist(user, book)
 
     def return_book(self, user: User, book: Book) -> None:
-        try:
-            # Check if the user exists
-            user_in_list = self.check_user(user)
-            for b in user_in_list.borrowed_physical_books:
-                if b in book.copies:
-                    user_in_list.borrowed_physical_books.remove(b)
-                    for loan in self.loans:
-                        if loan.book == b and loan.user == user_in_list:
-                            loan.returned_at = datetime.now()
-                            break
-                    b.is_available = True
-                    b.loan = None
-                    logger.info(
-                        f"User {user_in_list.name} returned the book: {b.book.title} to the library"
-                    )
-                    # Check if there is any user waiting for this book
-                    if book.waitlist:
-                        self.process_waitlist(book)
-                    break
-            else:
-                raise NoBook(
-                    f"User {user_in_list.name} did not borrow a book like: {book}"
+        # Check if the user exists
+        user_in_list = self.check_user(user)
+        for b in user_in_list.borrowed_physical_books:
+            if b in book.copies:
+                user_in_list.borrowed_physical_books.remove(b)
+                for loan in self.loans:
+                    if loan.book == b and loan.user == user_in_list:
+                        loan.returned_at = datetime.now()
+                        break
+                b.is_available = True
+                b.loan = None
+                logger.info(
+                    f"User {user_in_list.name} returned the book: {b.book.title} to the library"
                 )
-        except (NoUser, NoBook) as e:
-            logger.error(e)
-            raise
+                # Check if there is any user waiting for this book
+                if book.waitlist:
+                    self.process_waitlist(book)
+                break
+        else:
+            raise NoBook(
+                f"User {user_in_list.name} did not borrow a book like: {book}"
+            )
 
     def return_all_items(self, user: User) -> None:
         """Return all items borrowed from the library"""

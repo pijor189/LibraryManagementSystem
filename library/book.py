@@ -1,5 +1,6 @@
 from exceptions.book_exceptions import InvalidBook
 from typing import Self
+from datetime import datetime
 
 
 class Book:
@@ -19,6 +20,7 @@ class Book:
             or title.strip() == ""
             or author.strip() == ""
             or year == 0
+            or year > datetime.now().year
             or not isinstance(amount, int)
             or (isinstance(genre, list) and not genre)
             or (isinstance(genre, str) and genre.strip() == "")

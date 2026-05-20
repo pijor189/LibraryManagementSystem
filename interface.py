@@ -21,6 +21,7 @@ def init_library() -> Library:
     lib = Library()
     users = DataLoader.load_users("data/users.json")
     books, ebooks = DataLoader.load_books("data/books.json")
+    
     for book in books:
         lib.add_book(book)
     for ebook in ebooks:
@@ -132,11 +133,14 @@ def extend_option(lib: Library, user: User) -> None:
         print("Books you borrowed:")
         for i, b in enumerate(user.borrowed_physical_books, start=1):
             print(f"{i}. {b.book.title}\n{b.loan}\n")
+
         book_name = input("Choose a book you want to extend: ")
         book = lib.find_book_by_name(book_name)
+
         for loan in lib.loans:
             if user.id == loan.user.id and loan.book in book[0].copies:
                 running = True
+
                 while running:
                     days = int(
                         input(
@@ -156,8 +160,10 @@ def extend_option(lib: Library, user: User) -> None:
 def return_option(lib: Library, user: User) -> None:
     if user.borrowed_physical_books:
         print("Books you borrowed:\n")
+
         for i, b in enumerate(user.borrowed_physical_books, start=1):
             print(f"{i}. {b.book.title}\n{b.loan}\n")
+
         book_name = input("Name a book what you want to return: ")
         book = lib.find_book_by_name(book_name)
         lib.return_book(user, book[0])

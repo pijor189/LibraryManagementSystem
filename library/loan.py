@@ -1,12 +1,19 @@
 from library.user import User
 from library.book import Book, EBook
 from datetime import datetime, timedelta
+from exceptions.loan_exceptions import InvalidLoan, InvalidExtendDays
 
 
 class Loan:
     MAX_DAYS = 30
 
     def __init__(self, user: User, book: Book, days: int = 30):
+        if (
+            not isinstance(user, User)
+            or not isinstance(book, Book)
+            or not isinstance(days, int)
+        ):
+            raise InvalidLoan("Invalid loan initialization")
         self.user = user
         self.book = book
         self.borrowed_at = datetime.now()
@@ -14,7 +21,7 @@ class Loan:
             self.due_date = None
         else:
             if days <= 0:
-                raise ValueError("Days must be greater than 0")
+                raise InvalidExtendDays("Days must be greater than 0")
             days = min(days, self.MAX_DAYS)
             self.due_date = self.borrowed_at + timedelta(days=days)
         self.returned_at = None
@@ -30,7 +37,7 @@ class Loan:
             return
 
         if days <= 0:
-            raise ValueError("Days must be greater than 0")
+            raise InvalidExtendDays("Days must be greater than 0")
 
         new_due = self.due_date + timedelta(days=days)
         max_due = self.due_date + timedelta(days=self.MAX_DAYS)

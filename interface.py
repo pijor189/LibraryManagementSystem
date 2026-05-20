@@ -100,7 +100,8 @@ def borrow_option(lib: Library, user: User) -> None:
         while running:
             days = int(
                 input(
-                    "How many days would you like to borrow this book for? (Maximum: 30 days): "
+                    "How many days would you like to borrow this book for? "
+                    "(Maximum: 30 days): "
                 )
             )
             if days <= 0 or days > 30:

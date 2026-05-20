@@ -34,10 +34,12 @@ class Book:
         self.waitlist = []
 
     def __str__(self):
-        return f"Book: Title: {self.title} - Author: {self.author} - Genre: {self.genre} - Year: {self.year}"
+        return (f"Book: Title: {self.title} - Author: {self.author} - Genre: {self.genre}"
+                f" - Year: {self.year}")
 
     def __repr__(self):
-        return f"Book: Title: {self.title} - Author: {self.author} - Genre: {self.genre} - Year: {self.year}\n"
+        return (f"Book: Title: {self.title} - Author: {self.author} - Genre: {self.genre}"
+                f" - Year: {self.year}\n")
 
     def available_copy(self) -> Self | None:
         for copy in self.copies:
@@ -55,14 +57,14 @@ class BookCopy:
 
     def __str__(self):
         return (
-            f"Book: Title: {self.book.title} - Author: {self.book.author} - Genre: {self.book.genre} "
-            f"- Year: {self.book.year}"
+            f"Book: Title: {self.book.title} - Author: {self.book.author}"
+            f" - Genre: {self.book.genre} - Year: {self.book.year}"
         )
 
     def __repr__(self):
         return (
-            f"Book: Title: {self.book.title} - Author: {self.book.author} - Genre: {self.book.genre} "
-            f"- Year: {self.book.year}"
+            f"Book: Title: {self.book.title} - Author: {self.book.author}"
+            f" - Genre: {self.book.genre} - Year: {self.book.year}"
         )
 
 

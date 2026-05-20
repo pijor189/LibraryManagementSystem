@@ -64,9 +64,9 @@ class Library:
         if book.id not in self.books_id:
             raise NoBook("There is no book like that in the library")
         if isinstance(book, EBook):
-            for l in self.loans:
-                if book == l.book:
-                    l.user.borrowed_ebooks.remove(book)
+            for loan in self.loans:
+                if book == loan.book:
+                    loan.user.borrowed_ebooks.remove(book)
             self.books_id.remove(book.id)
             self.catalog.remove(book)
         elif isinstance(book, Book):
@@ -282,7 +282,8 @@ class Library:
         return result
 
     def add_to_waitlist(self, user: User, book: Book) -> None:
-        """If the book is borrowed, add the user to the list. Otherwise, check if a user who exceeded the borrowing
+        """If the book is borrowed, add the user to the list.
+        Otherwise, check if a user who exceeded the borrowing
         limit tried to borrow it, and add them to the list"""
         if not book.available_copy() or len(user.borrowed_physical_books) > 2:
             if self.check_waitlist(user, book):

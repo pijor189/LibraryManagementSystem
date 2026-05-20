@@ -3,29 +3,15 @@ from interface import init_library, menu, clear_console
 from library.exceptions import NoBook, InvalidUser
 import logging
 from fastapi import FastAPI
-from pydantic import BaseModel
-
+from api.books import router as books_router
+from api.users import router as users_router
 
 # logging.disable(logging.CRITICAL)
 
 app = FastAPI()
 
-class Item(BaseModel):
-    name: str
-    price: float
-    is_offer: bool
-
-@app.get("/")
-def read_root():
-    return {"Hello": "World"}
-
-@app.get("/items/{item_id}")
-def read_item(item_id: int, q: str):
-    return {"item_id": item_id, "q": q}
-
-@app.put("/items/{item_id}")
-def update_item(item_id: int, item: Item):
-    return {"item_name": item.name, "item_id": item_id}
+app.include_router(books_router)
+app.include_router(users_router)
 
 if __name__ == "__main__":
 

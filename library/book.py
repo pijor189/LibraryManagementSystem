@@ -1,10 +1,9 @@
 from .exceptions import InvalidBook
-from typing import Self
 
 
 class Book:
     def __init__(
-        self,
+        `self`,
         title: str,
         author: str,
         genre: list[str] | str,
@@ -46,6 +45,15 @@ class Book:
             if copy.is_available:
                 return copy
         return None
+
+    def to_dict(self):
+        return {
+            "type": "book",
+            "title": self.title,
+            "author": self.author,
+            "genre": self.genre,
+            "year": self.year
+        }
 
 
 class BookCopy:
@@ -90,5 +98,15 @@ class EBook(Book):
             f"- Year: {self.year} - File size: {self.file_size}\n"
         )
 
-    def available_copy(self) -> Self:
+    def available_copy(self) -> "self":
         return self
+
+    def to_dict(self):
+        return {
+            "type": "ebook",
+            "title": self.title,
+            "author": self.author,
+            "genre": self.genre,
+            "year": self.year,
+            "file_size": self.file_size
+        }

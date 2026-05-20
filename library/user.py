@@ -16,3 +16,11 @@ class User:
         ebooks = [b.title for b in self.borrowed_ebooks]
         waitlist = [b.title for b in self.waitlist]
         return f"User name: {self.name}\nBorrowed books: {books}\nBorrowed ebooks: {ebooks}\nWaitlist: {waitlist}"
+
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "name": self.name,
+            "books": self.borrowed_physical_books if self.borrowed_physical_books else "",
+            "ebooks": self.borrowed_ebooks if self.borrowed_ebooks else ""
+        }

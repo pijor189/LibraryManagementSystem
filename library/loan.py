@@ -44,3 +44,12 @@ class Loan:
         if isinstance(self.book, EBook):
             return False
         return datetime.now() > self.due_date
+
+    def to_dict(self):
+        return {
+            "user": self.user,
+            "book": self.book,
+            "borrowed at": self.borrowed_at,
+            "due date": "" if isinstance(self.book, EBook) else self.due_date,
+            "returned at": "" if isinstance(self.book, EBook) else self.returned_at
+        }

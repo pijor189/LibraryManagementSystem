@@ -1,5 +1,5 @@
 from library.user import User
-from interface import init_library, menu, clear_console
+from interface import init_library, menu, clear_console, OPTIONS
 from library.exceptions import NoBook, InvalidUser
 import logging
 
@@ -7,34 +7,23 @@ logging.disable(logging.CRITICAL)
 
 if __name__ == "__main__":
     lib = init_library()
-    print()
     try:
+        clear_console()
         user = User(input("Welcome! What's your name?\n"))
         lib.register_user(user)
     except InvalidUser as e:
         print(e)
         exit()
 
-    options = [
-        "1. Show all books",
-        "2. Show available books",
-        "3. Find a book",
-        "4. Find a user",
-        "5. Borrow a book",
-        "6. Extend book loan",
-        "7. Return a book",
-        "8. Exit",
-    ]
     running = True
 
     while running:
         clear_console()
-
         try:
             print("------LIBRARY SYSTEM------")
-            for option in options:
-                print(option)
+            print(OPTIONS)
             number = int(input("Choose an option: "))
+            clear_console()
             if not menu(lib, user, number):
                 running = False
             else:

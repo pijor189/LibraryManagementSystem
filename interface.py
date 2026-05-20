@@ -7,6 +7,16 @@ from typing import Any
 import os
 
 
+OPTIONS = f"1. Show all books\n" \
+        f"2. Show available books\n" \
+        f"3. Find a book\n" \
+        f"4. Find a user\n" \
+        f"5. Borrow a book\n" \
+        f"6. Extend book loan\n" \
+        f"7. Return a book\n" \
+        f"8. Exit\n"
+
+
 def init_library() -> Library:
     lib = Library()
     users = DataLoader.load_users("data/users.json")
@@ -26,6 +36,9 @@ def clear_console() -> None:
 
 
 def show(data: Any) -> None:
+    clear_console()
+    if not data:
+        return
     for d in data:
         print(d)
 
@@ -71,6 +84,7 @@ def find_book_options(lib: Library) -> None:
             print("Not valid number, choose again")
             input("\nPress ENTER to continue...")
         else:
+            clear_console()
             if number == 1:
                 name = input("Name of search book: ")
                 show(lib.find_book_by_name(name))
@@ -86,7 +100,7 @@ def find_book_options(lib: Library) -> None:
 def find_user_option(lib: Library) -> None:
     user_name = input("Name a user what you want to find: ")
     result = lib.find_user(user_name)
-    print(result if result else f"{user_name} does not exist")
+    print(result if result else f"Provide user {user_name} does not exist")
 
 
 def borrow_option(lib: Library, user: User) -> None:
@@ -115,8 +129,9 @@ def extend_option(lib: Library, user: User) -> None:
     days = Loan.MAX_DAYS
 
     if user.borrowed_physical_books:
-        for b in user.borrowed_physical_books:
-            print(b.book.title, "\n", b.loan, sep="")
+        print("Books you borrowed:")
+        for i, b in enumerate(user.borrowed_physical_books, start=1):
+            print(f"{i}. {b.book.title}\n{b.loan}\n")
         book_name = input("Choose a book you want to extend: ")
         book = lib.find_book_by_name(book_name)
         for loan in lib.loans:
@@ -140,8 +155,9 @@ def extend_option(lib: Library, user: User) -> None:
 
 def return_option(lib: Library, user: User) -> None:
     if user.borrowed_physical_books:
-        for b in user.borrowed_physical_books:
-            print(b.book.title, "\n", b.loan, sep="")
+        print("Books you borrowed:\n")
+        for i, b in enumerate(user.borrowed_physical_books, start=1):
+            print(f"{i}. {b.book.title}\n{b.loan}\n")
         book_name = input("Name a book what you want to return: ")
         book = lib.find_book_by_name(book_name)
         lib.return_book(user, book[0])

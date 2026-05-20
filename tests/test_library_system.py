@@ -3,14 +3,12 @@ from library.exceptions import UserWithItemsCannotBeUnregistered, NoBook
 import pytest
 
 
-"""
-    1. Borrow an ebook
-    2. Attempt to extend the ebook
-"""
-
-
 @pytest.mark.regression
 def test_extend_ebook(create_lib):
+    """
+        1. Borrow an ebook
+        2. Attempt to extend the ebook
+    """
     # step 1
     lib = create_lib
     user = lib.users_list[0]
@@ -26,14 +24,12 @@ def test_extend_ebook(create_lib):
     assert not loan.is_overdue()
 
 
-"""
-    1. Borrow a book
-    2. Attempt to extend a book by 30 days
-"""
-
-
 @pytest.mark.regression
 def test_extend_book(create_lib):
+    """
+        1. Borrow a book
+        2. Attempt to extend a book by 30 days
+    """
     # step 1
     lib = create_lib
     user = lib.users_list[0]
@@ -49,14 +45,12 @@ def test_extend_book(create_lib):
     assert not loan.is_overdue()
 
 
-"""
-    1. Borrow a book
-    2. Attempt to extend a book by 31 days (1 above the limit)
-"""
-
-
 @pytest.mark.regression
 def test_extend_book_above_limit(create_lib):
+    """
+        1. Borrow a book
+        2. Attempt to extend a book by 31 days (1 above the limit)
+    """
     # step 1
     lib = create_lib
     user = lib.users_list[0]
@@ -72,16 +66,14 @@ def test_extend_book_above_limit(create_lib):
     assert not loan.is_overdue()
 
 
-"""
-    1. Create a library and a user. Register the user in the library
-    2. The newly created user borrows a book and an ebook
-    3. The user returns all borrowed items to the library
-    4. Unregister the user
-"""
-
-
 @pytest.mark.regression
 def test_unregister_user(create_lib):
+    """
+        1. Create a library and a user. Register the user in the library
+        2. The newly created user borrows a book and an ebook
+        3. The user returns all borrowed items to the library
+        4. Unregister the user
+    """
     # step 1
     lib = create_lib
     user = User("Krzysztof Pijor")
@@ -104,15 +96,13 @@ def test_unregister_user(create_lib):
     assert user not in lib.users_list
 
 
-"""
-    1. Create a library and a user. Register the user in the library
-    2. The newly created user borrows a book and an ebook
-    3. Attempt to unregister the user with borrowed books
-"""
-
-
 @pytest.mark.regression
 def test_unregister_user_with_items_in_list(create_lib):
+    """
+        1. Create a library and a user. Register the user in the library
+        2. The newly created user borrows a book and an ebook
+        3. Attempt to unregister the user with borrowed books
+    """
     # step 1
     lib = create_lib
     user = User("Krzysztof Pijor")
@@ -131,14 +121,12 @@ def test_unregister_user_with_items_in_list(create_lib):
     assert user in lib.users_list
 
 
-"""
-    1. Create a library and check all available books
-    2. Create a user and a book. Then user borrows the book and check again all available books 
-"""
-
-
 @pytest.mark.regression
 def test_get_available_books(create_lib):
+    """
+        1. Create a library and check all available books
+        2. Create a user and a book. Then user borrows the book and check again all available books 
+    """
     # step 1
     lib = create_lib
     available_books = lib.get_available_books()
@@ -152,15 +140,13 @@ def test_get_available_books(create_lib):
     assert len(available_books) != len(lib.catalog)
 
 
-"""
-    1. Create a library, a user and a book
-    2. User borrow a book titled '1984'
-    3. User return a book
-"""
-
-
 @pytest.mark.smoke
 def test_return_book(create_lib):
+    """
+        1. Create a library, a user and a book
+        2. User borrow a book titled '1984'
+        3. User return a book
+    """
     # step 1
     lib = create_lib
     user = lib.users_list[0]
@@ -178,14 +164,12 @@ def test_return_book(create_lib):
     assert any(b not in user.borrowed_physical_books for b in book.copies)
 
 
-"""
-    1. Create a library, a user and a book
-    2. User borrow an ebook titled 'Python 101'
-"""
-
-
 @pytest.mark.smoke
 def test_borrow_ebook(create_lib):
+    """
+        1. Create a library, a user and a book
+        2. User borrow an ebook titled 'Python 101'
+    """
     # step 1
     lib = create_lib
     user = lib.users_list[0]
@@ -198,14 +182,12 @@ def test_borrow_ebook(create_lib):
     assert book in user.borrowed_ebooks
 
 
-"""
-    1. Create a library
-    2. Add one more copy of a book '1984'
-"""
-
-
 @pytest.mark.smoke
 def test_add_more_books(create_lib):
+    """
+        1. Create a library
+        2. Add one more copy of a book '1984'
+    """
     # step 1
     lib = create_lib
     book = lib.catalog[0]
@@ -217,15 +199,14 @@ def test_add_more_books(create_lib):
     assert book.amount == 2
     assert len(lib.book_copy_id) == 11
 
-"""
-    1. Create a library and let the user borrow a book
-    2. Attempt to remove the book from the library
-    3. User return a book and then the library can remove it from the catalog
-"""
-
 
 @pytest.mark.regression
 def test_remove_book(create_lib):
+    """
+        1. Create a library and let the user borrow a book
+        2. Attempt to remove the book from the library
+        3. User return a book and then the library can remove it from the catalog
+    """
     # step 1
     lib = create_lib
     book = lib.catalog[0]
@@ -246,14 +227,12 @@ def test_remove_book(create_lib):
     assert not user.borrowed_physical_books
 
 
-"""
-    1. Create a library and let the user borrow an ebook
-    2. Remove the ebook from the library and from the user's ebook list
-"""
-
-
 @pytest.mark.regression
 def test_remove_ebook(create_lib):
+    """
+        1. Create a library and let the user borrow an ebook
+        2. Remove the ebook from the library and from the user's ebook list
+    """
     # step 1
     lib = create_lib
     book = lib.catalog[13]
@@ -266,20 +245,18 @@ def test_remove_ebook(create_lib):
     assert len(lib.catalog) == 13
 
 
-"""
-    1. Create a library
-    2. First user borrow a book titled '1984'
-    3. Second user borrow 3 another books
-    4. Second user want to borrow a book titled '1984', but it is not avalaible and he has 3 book already, 
-        so he goes to the queue
-    5. First user return a book titled '1984', second user is in the queue, but he reached a limit
-    6. Second user return a book
-    7. Second user try again to borrow a book titled '1984'
-"""
-
-
 @pytest.mark.nightly
 def test_borrow_book_and_process_waitlist(create_lib):
+    """
+        1. Create a library
+        2. First user borrow a book titled '1984'
+        3. Second user borrow 3 another books
+        4. Second user want to borrow a book titled '1984', but it is not avalaible and he has 3 book already,
+            so he goes to the queue
+        5. First user return a book titled '1984', second user is in the queue, but he reached a limit
+        6. Second user return a book
+        7. Second user try again to borrow a book titled '1984'
+    """
     # step 1
     lib = create_lib
 
@@ -338,19 +315,17 @@ def test_borrow_book_and_process_waitlist(create_lib):
     assert any(b in user2.borrowed_physical_books for b in book4.copies)
 
 
-"""
-    1. Create a library
-    2. First user borrow a book titled '1984'
-    3. Second user borrow 3 another books
-    4. Second user want to borrow a book titled '1984', but it is not avalaible and he has 3 book already, 
-        so he goes to the queue
-    5. Third user want to borrow a book titled '1084', but it is not avalaible, so he goes to the queue
-    6. First user return a book titled '1984', third user will borrow a book titled '1984'
-"""
-
-
 @pytest.mark.nightly
 def test_process_waitlist_for_more_users(create_lib):
+    """
+        1. Create a library
+        2. First user borrow a book titled '1984'
+        3. Second user borrow 3 another books
+        4. Second user want to borrow a book titled '1984', but it is not avalaible and he has 3 book already,
+            so he goes to the queue
+        5. Third user want to borrow a book titled '1084', but it is not avalaible, so he goes to the queue
+        6. First user return a book titled '1984', third user will borrow a book titled '1984'
+    """
     # step 1
     lib = create_lib
 

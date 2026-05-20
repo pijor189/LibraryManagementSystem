@@ -1,10 +1,7 @@
 # Byte-compiled / cache
-__pycache__/
+**/__pycache__/
 *.py[cod]
 *$py.class
-library/__pycache__/
-tests/__pycache__/
-utils/__pycache__/
 
 # Virtual environments
 venv/

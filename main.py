@@ -1,6 +1,7 @@
 from library.user import User
 from interface import init_library, menu, clear_console, OPTIONS
-from library.exceptions import NoBook, InvalidUser
+from exceptions.user_exceptions import InvalidUser
+from exceptions.book_exceptions import NoBook
 import logging
 
 

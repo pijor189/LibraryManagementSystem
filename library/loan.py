@@ -1,5 +1,5 @@
 from library.user import User
-from library.book import Book, EBook
+from library.book import EBook, BookCopy
 from datetime import datetime, timedelta
 from exceptions.loan_exceptions import InvalidLoan, InvalidExtendDays
 
@@ -7,10 +7,10 @@ from exceptions.loan_exceptions import InvalidLoan, InvalidExtendDays
 class Loan:
     MAX_DAYS = 30
 
-    def __init__(self, user: User, book: Book, days: int = 30):
+    def __init__(self, user: User, book: BookCopy | EBook, days: int = 30):
         if (
             not isinstance(user, User)
-            or not isinstance(book, Book)
+            or (not isinstance(book, BookCopy) and not isinstance(book, EBook))
             or not isinstance(days, int)
         ):
             raise InvalidLoan("Invalid loan initialization")

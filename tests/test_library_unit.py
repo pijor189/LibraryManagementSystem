@@ -1,8 +1,10 @@
 from library.user import User
 from library.book import Book, EBook, BookCopy
+from library.loan import Loan
 from exceptions.book_exceptions import InvalidBook, NoBook
 from exceptions.user_exceptions import InvalidUser, NoUser
 from exceptions.library_exceptions import InvalidNumberOfBooks
+from exceptions.loan_exceptions import InvalidExtendDays, InvalidLoan
 from unittest.mock import patch
 import pytest
 
@@ -97,6 +99,42 @@ def test_invalid_book_invalid_amout():
     """
     with pytest.raises(InvalidBook):
         Book("Krzyżacy", "Henryk Sienkiewicz", "historical fiction", 1900, "1")
+
+
+@pytest.mark.regression
+def test_create_book_invalid_year():
+    """
+        Attempt to create a book with a year that is too high
+    """
+    with pytest.raises(InvalidBook):
+        Book(
+            "Nexus",
+            "Yuval Noah Harari",
+            ["non-fiction",
+                    "history",
+                    "technology",
+                    "society",
+                    "artificial intelligence"],
+            3026,
+        )
+
+
+@pytest.mark.regression
+def test_create_book_nonexistent_year():
+    """
+        Attempt to create a book with a year equal to 0
+    """
+    with pytest.raises(InvalidBook):
+        Book(
+            "Nexus",
+            "Yuval Noah Harari",
+            ["non-fiction",
+                    "history",
+                    "technology",
+                    "society",
+                    "artificial intelligence"],
+            0,
+        )
 
 
 @pytest.mark.regression
@@ -248,7 +286,7 @@ def test_borrow_book_invalid_days(create_lib):
     lib = create_lib
     user = lib.users_list[0]
     book = lib.catalog[0]
-    with pytest.raises(ValueError):
+    with pytest.raises(InvalidExtendDays):
         lib.borrow(user, book, 0)
 
 
@@ -263,8 +301,38 @@ def test_invalid_extend_loan(create_lib):
     lib.borrow(user, book)
     loan = lib.loans[0]
     print(loan)
-    with pytest.raises(ValueError):
+    with pytest.raises(InvalidExtendDays):
         loan.extend(-1)
+
+
+@pytest.mark.regression
+def test_loan_creation_with_invalid_user(create_lib):
+    """
+        Invalid loan initialization: invalid user provided
+    """
+    lib = create_lib
+    with pytest.raises(InvalidLoan):
+        Loan("Krzysztof Pijor", lib.catalog[0], 1)
+
+
+@pytest.mark.regression
+def test_loan_creation_with_invalid_book(create_lib):
+    """
+        Invalid loan initialization: invalid book provided
+    """
+    lib = create_lib
+    with pytest.raises(InvalidLoan):
+        Loan(lib.users_list[0], "The Hobbit", 1)
+
+
+@pytest.mark.regression
+def test_loan_creation_with_invalid_book(create_lib):
+    """
+        Invalid loan initialization: invalid days provided (str)
+    """
+    lib = create_lib
+    with pytest.raises(InvalidLoan):
+        Loan(lib.users_list[0], lib.catalog[0], "1")
 
 
 @pytest.mark.regression

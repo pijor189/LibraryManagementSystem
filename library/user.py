@@ -1,4 +1,4 @@
-from .exceptions import InvalidUser
+from exceptions.user_exceptions import InvalidUser
 
 
 class User:

@@ -1,12 +1,8 @@
 from library.user import User
 from library.book import Book, EBook, BookCopy
-from library.exceptions import (
-    InvalidUser,
-    InvalidBook,
-    NoBook,
-    NoUser,
-    InvalidNumberOfBooks,
-)
+from exceptions.book_exceptions import InvalidBook, NoBook
+from exceptions.user_exceptions import InvalidUser, NoUser
+from exceptions.library_exceptions import InvalidNumberOfBooks
 from unittest.mock import patch
 import pytest
 

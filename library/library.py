@@ -2,12 +2,9 @@ from .config import logger
 from .book import Book, EBook, BookCopy
 from .user import User
 from .loan import Loan
-from .exceptions import (
-    NoBook,
-    NoUser,
-    InvalidNumberOfBooks,
-    UserWithItemsCannotBeUnregistered,
-)
+from exceptions.book_exceptions import NoBook
+from exceptions.user_exceptions import NoUser
+from exceptions.library_exceptions import InvalidNumberOfBooks, UserWithItemsCannotBeUnregistered
 from utils.uid import generate_uid
 from datetime import datetime
 

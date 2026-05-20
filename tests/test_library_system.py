@@ -1,5 +1,6 @@
 from library.user import User
-from library.exceptions import UserWithItemsCannotBeUnregistered, NoBook
+from exceptions.library_exceptions import UserWithItemsCannotBeUnregistered
+from exceptions.book_exceptions import NoBook
 import pytest
 
 

@@ -3,7 +3,9 @@ from interface import init_library, menu, clear_console, OPTIONS
 from library.exceptions import NoBook, InvalidUser
 import logging
 
+
 logging.disable(logging.CRITICAL)
+
 
 if __name__ == "__main__":
     lib = init_library()

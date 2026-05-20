@@ -1,4 +1,4 @@
-from library.library_service import Library
+from library.library import Library
 from library.book import Book, EBook
 from library.user import User
 from utils.data_loader import DataLoader

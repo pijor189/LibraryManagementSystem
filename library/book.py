@@ -1,4 +1,4 @@
-from .exceptions import InvalidBook
+from exceptions.book_exceptions import InvalidBook
 from typing import Self
 
 

@@ -1,5 +1,5 @@
 from library.book import EBook
-from library.library_service import Library
+from library.library import Library
 from library.user import User
 from utils.data_loader import DataLoader
 from library.loan import Loan

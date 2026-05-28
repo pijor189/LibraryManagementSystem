@@ -6,11 +6,11 @@ class UserError(LibraryError):
     pass
 
 
-class InvalidUser(UserError):
+class UserInitializationError(UserError):
     """Raise an exceptions for invalid user initialization"""
     pass
 
 
-class NoUser(UserError):
+class MissingUserError(UserError):
     """Raise an exceptions when the user does not exist"""
     pass

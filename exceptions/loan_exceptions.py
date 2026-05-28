@@ -6,11 +6,11 @@ class LoanError(LibraryError):
     pass
 
 
-class InvalidLoan(LoanError):
+class LoanInitializationError(LoanError):
     """Raise an exceptions for invalid loan initialization"""
     pass
 
 
-class InvalidExtendDays(LoanError):
+class InvalidExtendDaysError(LoanError):
     """Raised when the number of days is less than or equal to 0"""
     pass

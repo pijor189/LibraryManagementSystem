@@ -6,11 +6,14 @@ class LibraryOperationError(LibraryError):
     pass
 
 
-class InvalidNumberOfBooks(LibraryError):
+class InvalidNumberOfBooksError(LibraryOperationError):
     """Raise an exceptions when provide invalid number of books"""
     pass
 
 
-class UserWithItemsCannotBeUnregistered(LibraryError):
-    """Raise an exceptions when attempting to unregister a user with borrowed books"""
+class UserHasBorrowedItemsError(LibraryOperationError):
+    """
+        Raise an exceptions when attempting to unregister
+        a user with borrowed books
+    """
     pass

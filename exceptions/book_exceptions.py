@@ -6,11 +6,11 @@ class BookError(LibraryError):
     pass
 
 
-class InvalidBook(BookError):
+class BookInitializationError(BookError):
     """Raise an exceptions for invalid book initialization"""
     pass
 
 
-class NoBook(BookError):
+class MissingBookError(BookError):
     """Raise an exceptions when the book does not exist"""
     pass

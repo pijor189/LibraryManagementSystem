@@ -1,7 +1,7 @@
 from library.user import User
 from interface import init_library, menu, clear_console, OPTIONS
-from exceptions.user_exceptions import InvalidUser
-from exceptions.book_exceptions import NoBook
+from exceptions.user_exceptions import UserInitializationError
+from exceptions.book_exceptions import MissingBookError
 import logging
 
 
@@ -14,7 +14,7 @@ if __name__ == "__main__":
         clear_console()
         user = User(input("Welcome! What's your name?\n"))
         lib.register_user(user)
-    except InvalidUser as e:
+    except UserInitializationError as e:
         print(e)
         exit()
 
@@ -31,6 +31,6 @@ if __name__ == "__main__":
                 running = False
             else:
                 input("\nPress ENTER to continue...")
-        except (TypeError, NoBook, ValueError) as e:
+        except (TypeError, MissingBookError, ValueError) as e:
             print(f"\033[31m{e}\033[0m")
             input("\nPress ENTER to continue...")

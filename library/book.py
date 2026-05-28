@@ -1,4 +1,4 @@
-from exceptions.book_exceptions import InvalidBook
+from exceptions.book_exceptions import BookInitializationError
 from typing import Self
 from datetime import datetime
 
@@ -25,7 +25,7 @@ class Book:
             or (isinstance(genre, list) and not genre)
             or (isinstance(genre, str) and genre.strip() == "")
         ):
-            raise InvalidBook("Invalid book initialization")
+            raise BookInitializationError("Invalid book initialization")
         self.title = title
         self.author = author
         self.genre = genre
@@ -36,12 +36,12 @@ class Book:
         self.waitlist = []
 
     def __str__(self):
-        return (f"Book: Title: {self.title} - Author: {self.author} - Genre: {self.genre}"
-                f" - Year: {self.year}")
+        return (f"Book: Title: {self.title} - Author: {self.author} \
+        - Genre: {self.genre} - Year: {self.year}")
 
     def __repr__(self):
-        return (f"Book: Title: {self.title} - Author: {self.author} - Genre: {self.genre}"
-                f" - Year: {self.year}\n")
+        return (f"Book: Title: {self.title} - Author: {self.author} \
+        - Genre: {self.genre} - Year: {self.year}\n")
 
     def available_copy(self) -> Self | None:
         for copy in self.copies:
@@ -59,37 +59,41 @@ class BookCopy:
 
     def __str__(self):
         return (
-            f"Book: Title: {self.book.title} - Author: {self.book.author}"
-            f" - Genre: {self.book.genre} - Year: {self.book.year}"
+            f"Book: Title: {self.book.title} - Author: {self.book.author} \
+            - Genre: {self.book.genre} - Year: {self.book.year}"
         )
 
     def __repr__(self):
         return (
-            f"Book: Title: {self.book.title} - Author: {self.book.author}"
-            f" - Genre: {self.book.genre} - Year: {self.book.year}"
+            f"Book: Title: {self.book.title} - Author: {self.book.author} \
+            - Genre: {self.book.genre} - Year: {self.book.year}"
         )
 
 
 class EBook(Book):
     def __init__(
-        self, title: str, author: str, genre: list[str] | str, year: int, file_size: int
+        self, title: str, author: str,
+        genre: list[str] | str, year: int,
+        file_size: int
     ):
         if not isinstance(file_size, int) or file_size < 0:
-            raise InvalidBook("Invalid ebook initialization")
+            raise BookInitializationError("Invalid ebook initialization")
         super().__init__(title, author, genre, year)
         self.id = 0
         self.file_size = file_size
 
     def __str__(self):
         return (
-            f"EBook: Title: {self.title} - Author: {self.author} - Genre: {self.genre} "
-            f"- Year: {self.year} - File size: {self.file_size}"
+            f"EBook: Title: {self.title} - Author: {self.author} \
+            - Genre: {self.genre} - Year: {self.year} \
+            - File size: {self.file_size}"
         )
 
     def __repr__(self):
         return (
-            f"EBook: Title: {self.title} - Author: {self.author} - Genre: {self.genre} "
-            f"- Year: {self.year} - File size: {self.file_size}\n"
+            f"EBook: Title: {self.title} - Author: {self.author} \
+            - Genre: {self.genre} - Year: {self.year} \
+            - File size: {self.file_size}\n"
         )
 
     def available_copy(self) -> Self:

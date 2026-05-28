@@ -7,21 +7,21 @@ from typing import Any
 import os
 
 
-OPTIONS = f"1. Show all books\n" \
-        f"2. Show available books\n" \
-        f"3. Find a book\n" \
-        f"4. Find a user\n" \
-        f"5. Borrow a book\n" \
-        f"6. Extend book loan\n" \
-        f"7. Return a book\n" \
-        f"8. Exit\n"
+OPTIONS = "1. Show all books\n \
+        2. Show available books\n \
+        3. Find a book\n \
+        4. Find a user\n \
+        5. Borrow a book\n \
+        6. Extend book loan\n \
+        7. Return a book\n \
+        8. Exit\n"
 
 
 def init_library() -> Library:
     lib = Library()
     users = DataLoader.load_users("data/users.json")
     books, ebooks = DataLoader.load_books("data/books.json")
-    
+
     for book in books:
         lib.add_book(book)
     for ebook in ebooks:
@@ -144,8 +144,9 @@ def extend_option(lib: Library, user: User) -> None:
                 while running:
                     days = int(
                         input(
-                            "How many days would you like to extend this book for?"
-                            " (Maximum: 30 days): "
+                            "How many days would you like \
+                            to extend this book for? \
+                            (Maximum: 30 days): "
                         )
                     )
                     if days <= 0 or days > 30:

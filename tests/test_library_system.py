@@ -1,6 +1,6 @@
 from library.user import User
-from exceptions.library_exceptions import UserWithItemsCannotBeUnregistered
-from exceptions.book_exceptions import NoBook
+from exceptions.library_exceptions import UserHasBorrowedItemsError
+from exceptions.book_exceptions import MissingBookError
 import pytest
 
 
@@ -84,7 +84,8 @@ def test_unregister_user(create_lib):
     # step 2
     lib.borrow(user, lib.catalog[0])
     lib.borrow(user, lib.catalog[13])
-    assert any(b in user.borrowed_physical_books for b in lib.catalog[0].copies)
+    assert any(b in user.borrowed_physical_books
+               for b in lib.catalog[0].copies)
     assert lib.catalog[13] in user.borrowed_ebooks
 
     # step 3
@@ -113,11 +114,12 @@ def test_unregister_user_with_items_in_list(create_lib):
     # step 2
     lib.borrow(user, lib.catalog[0])
     lib.borrow(user, lib.catalog[13])
-    assert any(b in user.borrowed_physical_books for b in lib.catalog[0].copies)
+    assert any(b in user.borrowed_physical_books
+               for b in lib.catalog[0].copies)
     assert lib.catalog[13] in user.borrowed_ebooks
 
     # step 3
-    with pytest.raises(UserWithItemsCannotBeUnregistered):
+    with pytest.raises(UserHasBorrowedItemsError):
         lib.unregister_user(user)
     assert user in lib.users_list
 
@@ -126,7 +128,8 @@ def test_unregister_user_with_items_in_list(create_lib):
 def test_get_available_books(create_lib):
     """
         1. Create a library and check all available books
-        2. Create a user and a book. Then user borrows the book and check again all available books 
+        2. Create a user and a book.
+            Then user borrows the book and check again all available books
     """
     # step 1
     lib = create_lib
@@ -206,7 +209,8 @@ def test_remove_book(create_lib):
     """
         1. Create a library and let the user borrow a book
         2. Attempt to remove the book from the library
-        3. User return a book and then the library can remove it from the catalog
+        3. User return a book and then the library
+            can remove it from the catalog
     """
     # step 1
     lib = create_lib
@@ -216,7 +220,7 @@ def test_remove_book(create_lib):
     assert user.borrowed_physical_books
 
     # step 2
-    with pytest.raises(NoBook):
+    with pytest.raises(MissingBookError):
         lib.remove_book(book)
     assert len(lib.catalog) == 14
     assert user.borrowed_physical_books
@@ -252,9 +256,11 @@ def test_borrow_book_and_process_waitlist(create_lib):
         1. Create a library
         2. First user borrow a book titled '1984'
         3. Second user borrow 3 another books
-        4. Second user want to borrow a book titled '1984', but it is not avalaible and he has 3 book already,
+        4. Second user want to borrow a book titled '1984',
+            but it is not available and he has 3 book already,
             so he goes to the queue
-        5. First user return a book titled '1984', second user is in the queue, but he reached a limit
+        5. First user return a book titled '1984',
+            second user is in the queue, but he reached a limit
         6. Second user return a book
         7. Second user try again to borrow a book titled '1984'
     """
@@ -322,10 +328,13 @@ def test_process_waitlist_for_more_users(create_lib):
         1. Create a library
         2. First user borrow a book titled '1984'
         3. Second user borrow 3 another books
-        4. Second user want to borrow a book titled '1984', but it is not avalaible and he has 3 book already,
+        4. Second user want to borrow a book titled '1984',
+            but it is not available and he has 3 book already,
             so he goes to the queue
-        5. Third user want to borrow a book titled '1084', but it is not avalaible, so he goes to the queue
-        6. First user return a book titled '1984', third user will borrow a book titled '1984'
+        5. Third user want to borrow a book titled '1084',
+            but it is not available, so he goes to the queue
+        6. First user return a book titled '1984',
+            third user will borrow a book titled '1984'
     """
     # step 1
     lib = create_lib

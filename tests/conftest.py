@@ -99,7 +99,10 @@ def create_books() -> tuple[list[Book], list[EBook]]:
         5,
     )
 
-    all_books = [book1, book2, book3, book4, book5, book6, book7, book8, book9, book10]
+    all_books = [
+        book1, book2, book3, book4, book5,
+        book6, book7, book8, book9, book10
+    ]
     all_ebooks = [ebook1, ebook2, ebook3, ebook4]
     return all_books, all_ebooks
 

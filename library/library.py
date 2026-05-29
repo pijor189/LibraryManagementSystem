@@ -195,7 +195,7 @@ class Library:
             Borrow a physical book if available,
             otherwise add the user to the waitlist
         """
-        if any(book.waitlist):
+        if any(book.waitlist) or not book.available_copy():
             logger.info(f"Book '{book.title}' is not available,\
                 {user} added to waitlist")
             self.add_to_waitlist(user, book)

@@ -1,3 +1,4 @@
+import pytest
 from library.user import User
 from library.book import Book, EBook, BookCopy
 from library.loan import Loan
@@ -12,7 +13,6 @@ from exceptions.loan_exceptions import (
     InvalidExtendDaysError, LoanInitializationError
 )
 from unittest.mock import patch
-import pytest
 
 
 @pytest.mark.smoke

@@ -1,0 +1,34 @@
+[
+  {
+    "type": "ebook",
+    "title": "Mistrz i Małgorzata",
+    "author": "Michaił Bułhakow",
+    "genre": ["magical realism", "philosophical fiction", "satire"],
+    "year": 1967,
+    "file_size": 5
+  },
+  {
+    "type": "ebook",
+    "title": "1984",
+    "author": "George Orwell",
+    "genre": ["dystopian fiction", "political fiction", "science fiction"],
+    "year": 1949,
+    "file_size": 2
+  },
+  {
+    "type": "ebook",
+    "title": "Brave New World",
+    "author": "Aldous Huxley",
+    "genre": ["dystopian fiction", "science fiction"],
+    "year": 1932,
+    "file_size": 3
+  },
+  {
+    "type": "ebook",
+    "title": "Python 101",
+    "author": "John Doe",
+    "genre": ["technical literature", "educational programming"],
+    "year": 2020,
+    "file_size": 5
+  }
+]

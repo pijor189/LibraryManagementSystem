@@ -1,7 +1,7 @@
+import pytest
 from library.user import User
 from exceptions.library_exceptions import UserHasBorrowedItemsError
 from exceptions.book_exceptions import MissingBookError
-import pytest
 
 
 @pytest.mark.regression

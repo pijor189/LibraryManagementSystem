@@ -1,9 +1,10 @@
+import pytest
 from library.library import Library
 from library.book import Book, EBook
 from library.user import User
 from utils.data_loader import DataLoader
 from pathlib import Path
-import pytest
+
 
 BASE_DIR = Path(__file__).resolve().parents[1]
 
@@ -157,7 +158,9 @@ def create_lib():
     """users = create_users()
     books, ebooks = create_books()"""
     users = DataLoader.load_users(f"{BASE_DIR}/data/users.json")
-    books, ebooks = DataLoader.load_books(f"{BASE_DIR}/data/books.json")
+    books = DataLoader.load_books(f"{BASE_DIR}/data/books.json")
+    ebooks = DataLoader.load_ebooks(f"{BASE_DIR}/data/ebooks.json")
+
     for book in books:
         lib.add_book(book)
     for ebook in ebooks:

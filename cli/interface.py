@@ -1,10 +1,11 @@
+import os
 from library.book import EBook
 from library.library import Library
 from library.user import User
 from utils.data_loader import DataLoader
 from library.loan import Loan
 from typing import Any
-import os
+from data.database_manager import DatabaseManager
 
 
 OPTIONS = "1. Show all books\n \
@@ -17,10 +18,22 @@ OPTIONS = "1. Show all books\n \
         8. Exit\n"
 
 
+def initialize_database():
+    with open("data/schema.sql", "r") as f:
+        schema = f.read()
+
+    db = DatabaseManager()
+    db.cursor.executescript(schema)
+    db.conn.commit()
+
+    return db
+
+
 def init_library() -> Library:
     lib = Library()
     users = DataLoader.load_users("data/users.json")
-    books, ebooks = DataLoader.load_books("data/books.json")
+    books = DataLoader.load_books("data/books.json")
+    ebooks = DataLoader.load_ebooks("data/ebooks.json")
 
     for book in books:
         lib.add_book(book)

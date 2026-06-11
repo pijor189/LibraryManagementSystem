@@ -1,7 +1,10 @@
 import pytest
+import logging
 from library.user import User
 from exceptions.library_exceptions import UserHasBorrowedItemsError
-from exceptions.book_exceptions import MissingBookError
+from exceptions.book_exceptions import MissingItemError
+
+logging.disable(logging.CRITICAL)
 
 
 @pytest.mark.regression
@@ -12,10 +15,10 @@ def test_extend_ebook(create_lib):
     """
     # step 1
     lib = create_lib
-    user = lib.users_list[0]
-    book = lib.catalog[13]
+    user = next(iter(lib.users_list.values()))
+    book = list(lib.catalog.values())[13]
     lib.borrow(user, book)
-    loan = lib.loans[0]
+    loan = next(iter(lib.loans.values()))
     assert loan.due_date is None
     assert not loan.is_overdue()
 
@@ -33,10 +36,10 @@ def test_extend_book(create_lib):
     """
     # step 1
     lib = create_lib
-    user = lib.users_list[0]
-    book = lib.catalog[0]
+    user = next(iter(lib.users_list.values()))
+    book = next(iter(lib.catalog.values()))
     lib.borrow(user, book, 1)
-    loan = lib.loans[0]
+    loan = next(iter(lib.loans.values()))
     assert loan.due_date is not None
     assert not loan.is_overdue()
 
@@ -54,10 +57,10 @@ def test_extend_book_above_limit(create_lib):
     """
     # step 1
     lib = create_lib
-    user = lib.users_list[0]
-    book = lib.catalog[0]
+    user = next(iter(lib.users_list.values()))
+    book = next(iter(lib.catalog.values()))
     lib.borrow(user, book, 1)
-    loan = lib.loans[0]
+    loan = next(iter(lib.loans.values()))
     assert loan.due_date is not None
     assert not loan.is_overdue()
 
@@ -79,14 +82,15 @@ def test_unregister_user(create_lib):
     lib = create_lib
     user = User("Krzysztof Pijor")
     lib.register_user(user)
-    assert user in lib.users_list
+    assert user in lib.users_list.values()
 
     # step 2
-    lib.borrow(user, lib.catalog[0])
-    lib.borrow(user, lib.catalog[13])
-    assert any(b in user.borrowed_physical_books
-               for b in lib.catalog[0].copies)
-    assert lib.catalog[13] in user.borrowed_ebooks
+    book = list(lib.catalog.values())[0]
+    ebook = list(lib.catalog.values())[13]
+    lib.borrow(user, book)
+    lib.borrow(user, ebook)
+    assert book.id in user.borrowed_physical_books.values()
+    assert ebook.id in user.borrowed_ebooks.values()
 
     # step 3
     lib.return_all_items(user)
@@ -95,7 +99,7 @@ def test_unregister_user(create_lib):
 
     # step 4
     lib.unregister_user(user)
-    assert user not in lib.users_list
+    assert user not in lib.users_list.values()
 
 
 @pytest.mark.regression
@@ -109,19 +113,20 @@ def test_unregister_user_with_items_in_list(create_lib):
     lib = create_lib
     user = User("Krzysztof Pijor")
     lib.register_user(user)
-    assert user in lib.users_list
+    assert user.id in lib.users_list
 
     # step 2
-    lib.borrow(user, lib.catalog[0])
-    lib.borrow(user, lib.catalog[13])
-    assert any(b in user.borrowed_physical_books
-               for b in lib.catalog[0].copies)
-    assert lib.catalog[13] in user.borrowed_ebooks
+    book = list(lib.catalog.values())[0]
+    ebook = list(lib.catalog.values())[13]
+    lib.borrow(user, book)
+    lib.borrow(user, ebook)
+    assert book.id in user.borrowed_physical_books.values()
+    assert ebook.id in user.borrowed_ebooks.values()
 
     # step 3
     with pytest.raises(UserHasBorrowedItemsError):
         lib.unregister_user(user)
-    assert user in lib.users_list
+    assert user.id in lib.users_list
 
 
 @pytest.mark.regression
@@ -137,8 +142,8 @@ def test_get_available_books(create_lib):
     assert len(available_books) == len(lib.catalog)
 
     # step 2
-    user = lib.users_list[0]
-    book = lib.catalog[0]
+    user = next(iter(lib.users_list.values()))
+    book = next(iter(lib.catalog.values()))
     lib.borrow(user, book)
     available_books = lib.get_available_books()
     assert len(available_books) != len(lib.catalog)
@@ -153,19 +158,19 @@ def test_return_book(create_lib):
     """
     # step 1
     lib = create_lib
-    user = lib.users_list[0]
-    book = lib.catalog[0]
+    user = next(iter(lib.users_list.values()))
+    book = next(iter(lib.catalog.values()))
 
     # step 2
     lib.borrow(user, book)
-    print(user.borrowed_physical_books[0])
+    print(user.borrowed_physical_books)
     assert len(user.borrowed_physical_books) == 1
-    assert any(b in user.borrowed_physical_books for b in book.copies)
+    assert book.id in user.borrowed_physical_books.values()
 
     # step 3
     lib.return_book(user, book)
     assert len(user.borrowed_physical_books) == 0
-    assert any(b not in user.borrowed_physical_books for b in book.copies)
+    assert book.id not in user.borrowed_physical_books.values()
 
 
 @pytest.mark.smoke
@@ -176,32 +181,36 @@ def test_borrow_ebook(create_lib):
     """
     # step 1
     lib = create_lib
-    user = lib.users_list[0]
-    book = lib.catalog[13]
+    user = next(iter(lib.users_list.values()))
+    book = list(lib.catalog.values())[13]
 
     # step 2
     lib.borrow(user, book)
     assert len(user.borrowed_physical_books) == 0
     assert len(user.borrowed_ebooks) == 1
-    assert book in user.borrowed_ebooks
+    assert book.id in user.borrowed_ebooks.values()
 
 
 @pytest.mark.smoke
-def test_add_more_books(create_lib):
+def test_add_and_reduce_books(create_lib):
     """
         1. Create a library
         2. Add one more copy of a book '1984'
+        3. Reduce one copy of a book '1984'
     """
     # step 1
     lib = create_lib
-    book = lib.catalog[0]
+    book = next(iter(lib.catalog.values()))
     assert book.amount == 1
-    assert len(lib.book_copy_id) == 10
+    assert len(lib.catalog) == 14
 
     # step 2
     lib.add_existing_book(book, 1)
     assert book.amount == 2
-    assert len(lib.book_copy_id) == 11
+
+    # step 3
+    lib.reduce_book_amount(book, 1)
+    assert book.amount == 1
 
 
 @pytest.mark.regression
@@ -214,20 +223,20 @@ def test_remove_book(create_lib):
     """
     # step 1
     lib = create_lib
-    book = lib.catalog[0]
-    user = lib.users_list[0]
+    book = next(iter(lib.catalog.values()))
+    user = next(iter(lib.users_list.values()))
     lib.borrow(user, book)
     assert user.borrowed_physical_books
 
     # step 2
-    with pytest.raises(MissingBookError):
-        lib.remove_book(book)
+    with pytest.raises(MissingItemError):
+        lib.remove_item(book)
     assert len(lib.catalog) == 14
     assert user.borrowed_physical_books
 
     # step 3
     lib.return_book(user, book)
-    lib.remove_book(book)
+    lib.remove_item(book)
     assert len(lib.catalog) == 13
     assert not user.borrowed_physical_books
 
@@ -240,12 +249,12 @@ def test_remove_ebook(create_lib):
     """
     # step 1
     lib = create_lib
-    book = lib.catalog[13]
-    user = lib.users_list[0]
+    book = list(lib.catalog.values())[13]
+    user = list(lib.users_list.values())[0]
     lib.borrow(user, book)
 
     # step 2
-    lib.remove_book(book)
+    lib.remove_item(book)
     assert not user.borrowed_ebooks
     assert len(lib.catalog) == 13
 
@@ -268,58 +277,58 @@ def test_borrow_book_and_process_waitlist(create_lib):
     lib = create_lib
 
     # step 2
-    user1 = lib.users_list[0]
-    book1 = lib.catalog[0]
+    user1 = list(lib.users_list.values())[0]
+    book1 = list(lib.catalog.values())[0]
     lib.borrow(user1, book1)
     assert len(user1.borrowed_physical_books) == 1
-    assert any(b in user1.borrowed_physical_books for b in book1.copies)
+    assert book1.id in user1.borrowed_physical_books.values()
 
     # step 3
-    user2 = lib.users_list[1]
-    book2 = lib.catalog[1]
-    book3 = lib.catalog[2]
-    book4 = lib.catalog[3]
+    user2 = list(lib.users_list.values())[1]
+    book2 = list(lib.catalog.values())[1]
+    book3 = list(lib.catalog.values())[2]
+    book4 = list(lib.catalog.values())[3]
     lib.borrow(user2, book2)
     lib.borrow(user2, book3)
     lib.borrow(user2, book4)
     assert len(user2.borrowed_physical_books) == 3
-    assert any(b in user2.borrowed_physical_books for b in book2.copies)
-    assert any(b in user2.borrowed_physical_books for b in book3.copies)
-    assert any(b in user2.borrowed_physical_books for b in book4.copies)
+    assert book2.id in user2.borrowed_physical_books.values()
+    assert book3.id in user2.borrowed_physical_books.values()
+    assert book4.id in user2.borrowed_physical_books.values()
 
     # step 4
     lib.borrow(user2, book1)
     assert len(user2.borrowed_physical_books) == 3
-    assert any(b in user2.borrowed_physical_books for b in book2.copies)
-    assert any(b in user2.borrowed_physical_books for b in book3.copies)
-    assert any(b in user2.borrowed_physical_books for b in book4.copies)
-    assert user2 in book1.waitlist
+    assert book2.id in user2.borrowed_physical_books.values()
+    assert book3.id in user2.borrowed_physical_books.values()
+    assert book4.id in user2.borrowed_physical_books.values()
+    assert user2.id in book1.waitlist
 
     # step 5
     lib.return_book(user1, book1)
-    assert any(b not in user1.borrowed_physical_books for b in book1.copies)
+    assert book1.id not in user1.borrowed_physical_books.values()
     assert len(user1.borrowed_physical_books) == 0
-    assert user2 in book1.waitlist
+    assert user2.id in book1.waitlist
     assert len(user2.borrowed_physical_books) == 3
-    assert any(b in user2.borrowed_physical_books for b in book2.copies)
-    assert any(b in user2.borrowed_physical_books for b in book3.copies)
-    assert any(b in user2.borrowed_physical_books for b in book4.copies)
+    assert book2.id in user2.borrowed_physical_books.values()
+    assert book3.id in user2.borrowed_physical_books.values()
+    assert book4.id in user2.borrowed_physical_books.values()
 
     # step 6
     lib.return_book(user2, book2)
-    assert user2 in book1.waitlist
+    assert user2.id in book1.waitlist
     assert len(user2.borrowed_physical_books) == 2
-    assert any(b not in user2.borrowed_physical_books for b in book2.copies)
-    assert any(b in user2.borrowed_physical_books for b in book3.copies)
-    assert any(b in user2.borrowed_physical_books for b in book4.copies)
+    assert book2.id not in user2.borrowed_physical_books.values()
+    assert book3.id in user2.borrowed_physical_books.values()
+    assert book4.id in user2.borrowed_physical_books.values()
 
     # step 7
     lib.borrow(user2, book1)
-    assert user2 not in book1.waitlist
+    assert user2.id not in book1.waitlist
     assert len(user2.borrowed_physical_books) == 3
-    assert any(b in user2.borrowed_physical_books for b in book1.copies)
-    assert any(b in user2.borrowed_physical_books for b in book3.copies)
-    assert any(b in user2.borrowed_physical_books for b in book4.copies)
+    assert book1.id in user2.borrowed_physical_books.values()
+    assert book3.id in user2.borrowed_physical_books.values()
+    assert book4.id in user2.borrowed_physical_books.values()
 
 
 @pytest.mark.nightly
@@ -340,47 +349,47 @@ def test_process_waitlist_for_more_users(create_lib):
     lib = create_lib
 
     # step 2
-    user1 = lib.users_list[0]
-    book1 = lib.catalog[0]
+    user1 = list(lib.users_list.values())[0]
+    book1 = list(lib.catalog.values())[0]
     lib.borrow(user1, book1)
     assert len(user1.borrowed_physical_books) == 1
-    assert any(b in user1.borrowed_physical_books for b in book1.copies)
+    assert book1.id in user1.borrowed_physical_books.values()
 
     # step 3
-    user2 = lib.users_list[1]
-    book2 = lib.catalog[1]
-    book3 = lib.catalog[2]
-    book4 = lib.catalog[3]
+    user2 = list(lib.users_list.values())[1]
+    book2 = list(lib.catalog.values())[1]
+    book3 = list(lib.catalog.values())[2]
+    book4 = list(lib.catalog.values())[3]
     lib.borrow(user2, book2)
     lib.borrow(user2, book3)
     lib.borrow(user2, book4)
     assert len(user2.borrowed_physical_books) == 3
-    assert any(b in user2.borrowed_physical_books for b in book2.copies)
-    assert any(b in user2.borrowed_physical_books for b in book3.copies)
-    assert any(b in user2.borrowed_physical_books for b in book4.copies)
+    assert book2.id in user2.borrowed_physical_books.values()
+    assert book3.id in user2.borrowed_physical_books.values()
+    assert book4.id in user2.borrowed_physical_books.values()
 
     # step 4
     lib.borrow(user2, book1)
     assert len(user2.borrowed_physical_books) == 3
-    assert any(b in user2.borrowed_physical_books for b in book2.copies)
-    assert any(b in user2.borrowed_physical_books for b in book3.copies)
-    assert any(b in user2.borrowed_physical_books for b in book4.copies)
-    assert user2 in book1.waitlist
+    assert book2.id in user2.borrowed_physical_books.values()
+    assert book3.id in user2.borrowed_physical_books.values()
+    assert book4.id in user2.borrowed_physical_books.values()
+    assert user2.id in book1.waitlist
 
     # step 5
-    user3 = lib.users_list[2]
+    user3 = list(lib.users_list.values())[2]
     lib.borrow(user3, book1)
-    assert user2 in book1.waitlist
-    assert any(b not in user2.borrowed_physical_books for b in book1.copies)
-    assert user3 in book1.waitlist
-    assert any(b not in user3.borrowed_physical_books for b in book1.copies)
+    assert user2.id in book1.waitlist
+    assert book1.id not in user2.borrowed_physical_books.values()
+    assert user3.id in book1.waitlist
+    assert book1.id not in user3.borrowed_physical_books.values()
 
     # step 6
     lib.return_book(user1, book1)
-    assert any(b not in user1.borrowed_physical_books for b in book1.copies)
+    assert book1.id not in user1.borrowed_physical_books.values()
     assert len(user1.borrowed_physical_books) == 0
-    assert user2 in book1.waitlist
+    assert user2.id in book1.waitlist
     assert len(user2.borrowed_physical_books) == 3
-    assert any(b not in user2.borrowed_physical_books for b in book1.copies)
-    assert user3 not in book1.waitlist
-    assert any(b in user3.borrowed_physical_books for b in book1.copies)
+    assert book1.id not in user2.borrowed_physical_books.values()
+    assert user3.id not in book1.waitlist
+    assert book1.id in user3.borrowed_physical_books.values()

@@ -1,16 +1,21 @@
 import pytest
 from library.user import User
-from library.book import Book, EBook, BookCopy
+from library.book import Book, EBook, Item
 from library.loan import Loan
 from exceptions.book_exceptions import (
-    BookInitializationError, MissingBookError
+    BookInitializationError,
+    EBookInitializationError,
+    ItemInitializationError,
+    MissingItemError
 )
 from exceptions.user_exceptions import (
-    UserInitializationError, MissingUserError
+    UserInitializationError,
+    MissingUserError
 )
 from exceptions.library_exceptions import InvalidNumberOfBooksError
 from exceptions.loan_exceptions import (
-    InvalidExtendDaysError, LoanInitializationError
+    InvalidExtendDaysError,
+    LoanInitializationError
 )
 from unittest.mock import patch
 
@@ -40,7 +45,7 @@ def test_invalid_book_invalid_title():
     """
         Create a invalid book (invalid title)
     """
-    with pytest.raises(BookInitializationError):
+    with pytest.raises(ItemInitializationError):
         Book(1, "Henryk Sienkiewicz", "historical fiction", 1900)
 
 
@@ -49,7 +54,7 @@ def test_invalid_book_empty_title():
     """
         Create a invalid book (empty title)
     """
-    with pytest.raises(BookInitializationError):
+    with pytest.raises(ItemInitializationError):
         Book("", "Henryk Sienkiewicz", "historical fiction", 1900)
 
 
@@ -58,7 +63,7 @@ def test_invalid_book_empty_author():
     """
         Create a invalid book (empty author)
     """
-    with pytest.raises(BookInitializationError):
+    with pytest.raises(ItemInitializationError):
         Book("Krzyżacy", "", "historical fiction", 1900)
 
 
@@ -67,7 +72,7 @@ def test_invalid_book_invalid_author():
     """
         Create a invalid book (invalid author)
     """
-    with pytest.raises(BookInitializationError):
+    with pytest.raises(ItemInitializationError):
         Book("Krzyżacy", 1, "historical fiction", 1900, 1)
 
 
@@ -76,7 +81,7 @@ def test_invalid_book_empty_genre_str():
     """
         Create a invalid book (empty genre - string)
     """
-    with pytest.raises(BookInitializationError):
+    with pytest.raises(ItemInitializationError):
         Book("Krzyżacy", "Henryk Sienkiewicz", "", 1900)
 
 
@@ -85,7 +90,7 @@ def test_invalid_book_empty_genre_list():
     """
         Create a invalid book (empty genre - list)
     """
-    with pytest.raises(BookInitializationError):
+    with pytest.raises(ItemInitializationError):
         Book("Krzyżacy", "Henryk Sienkiewicz", [], 1900)
 
 
@@ -94,12 +99,12 @@ def test_invalid_book_invalid_genre():
     """
         Create a invalid book (invalid genre)
     """
-    with pytest.raises(BookInitializationError):
+    with pytest.raises(ItemInitializationError):
         Book("Krzyżacy", "Henryk Sienkiewicz", 1, 1900)
 
 
 @pytest.mark.regression
-def test_invalid_book_invalid_amout():
+def test_invalid_book_invalid_amount():
     """
         Create a invalid book (invalid amount)
     """
@@ -112,7 +117,7 @@ def test_create_book_invalid_year():
     """
         Attempt to create a book with a year that is too high
     """
-    with pytest.raises(BookInitializationError):
+    with pytest.raises(ItemInitializationError):
         Book(
             "Nexus",
             "Yuval Noah Harari",
@@ -132,7 +137,7 @@ def test_create_book_nonexistent_year():
     """
         Attempt to create a book with a year equal to 0
     """
-    with pytest.raises(BookInitializationError):
+    with pytest.raises(ItemInitializationError):
         Book(
             "Nexus",
             "Yuval Noah Harari",
@@ -152,7 +157,7 @@ def test_invalid_ebook_invalid_file_size():
     """
         Create a invalid ebook (file size not int)
     """
-    with pytest.raises(BookInitializationError):
+    with pytest.raises(EBookInitializationError):
         EBook("Krzyżacy", "Henryk Sienkiewicz", "historical fiction", 1900, "")
 
 
@@ -161,7 +166,7 @@ def test_invalid_ebook_too_small_file_size():
     """
         Create a invalid ebook (invalid file size)
     """
-    with pytest.raises(BookInitializationError):
+    with pytest.raises(EBookInitializationError):
         EBook("Krzyżacy", "Henryk Sienkiewicz", "historical fiction", 1900, -1)
 
 
@@ -171,8 +176,8 @@ def test_return_books_with_empty_list(create_lib):
         Return book with empty borrowed books list
     """
     lib = create_lib
-    user = lib.users_list[0]
-    with pytest.raises(MissingBookError):
+    user = next(iter(lib.users_list.values()))
+    with pytest.raises(MissingItemError):
         lib.return_all_items(user)
 
 
@@ -182,7 +187,7 @@ def test_book_not_provided_to_add(create_lib):
         Book not provided to add_book function
     """
     lib = create_lib
-    with pytest.raises(MissingBookError):
+    with pytest.raises(MissingItemError):
         lib.add_book("Potop")
 
 
@@ -203,7 +208,7 @@ def test_not_register_user_provided_to_borrow(create_lib, caplog):
     """
     lib = create_lib
     user = User("Adam Nowak")
-    book = lib.catalog[0]
+    book = next(iter(lib.catalog))
     with pytest.raises(MissingUserError):
         lib.borrow(user, book)
 
@@ -214,7 +219,7 @@ def test_not_added_book_provided_to_borrow(create_lib):
         Not added book provided to borrow function
     """
     lib = create_lib
-    user = lib.users_list[0]
+    user = next(iter(lib.users_list.values()))
     book = Book(
         "Nexus",
         "Yuval Noah Harari",
@@ -223,7 +228,7 @@ def test_not_added_book_provided_to_borrow(create_lib):
          ],
         2024,
     )
-    with pytest.raises(MissingBookError):
+    with pytest.raises(MissingItemError):
         lib.borrow(user, book)
 
 
@@ -234,7 +239,7 @@ def test_not_valid_data_provided_to_borrow(create_lib):
     """
     lib = create_lib
     user = "Adam Nowak"
-    book = lib.catalog[0]
+    book = next(iter(lib.catalog.values()))
     with pytest.raises(Exception):
         lib.borrow(user, book)
 
@@ -246,7 +251,7 @@ def test_not_register_user_provided_to_return_book(create_lib):
     """
     lib = create_lib
     user = User("Adam Nowak")
-    book = lib.catalog[0]
+    book = next(iter(lib.catalog.values()))
     with pytest.raises(MissingUserError):
         lib.return_book(user, book)
 
@@ -257,9 +262,9 @@ def test_not_borrowed_book_provided_to_return_book(create_lib):
         Not borrowed book provided to return_book function
     """
     lib = create_lib
-    user = lib.users_list[0]
-    book = lib.catalog[0]
-    with pytest.raises(MissingBookError):
+    user = next(iter(lib.users_list.values()))
+    book = next(iter(lib.catalog.values()))
+    with pytest.raises(MissingItemError):
         lib.return_book(user, book)
 
 
@@ -278,7 +283,7 @@ def test_invalid_book_to_add_more_copies(create_lib):
         ],
         2024,
     )
-    with pytest.raises(MissingBookError):
+    with pytest.raises(MissingItemError):
         lib.add_existing_book(book, 1)
 
 
@@ -288,7 +293,7 @@ def test_invalid_number_books_add(create_lib):
         Invalid number of books to add
     """
     lib = create_lib
-    book = lib.catalog[0]
+    book = next(iter(lib.catalog.values()))
     with pytest.raises(InvalidNumberOfBooksError):
         lib.add_existing_book(book, 0)
 
@@ -299,8 +304,8 @@ def test_borrow_book_invalid_days(create_lib):
         Invalid number of days to borrow a book
     """
     lib = create_lib
-    user = lib.users_list[0]
-    book = lib.catalog[0]
+    user = next(iter(lib.users_list.values()))
+    book = next(iter(lib.catalog.values()))
     with pytest.raises(InvalidExtendDaysError):
         lib.borrow(user, book, 0)
 
@@ -311,10 +316,10 @@ def test_invalid_extend_loan(create_lib):
         Invalid number of days to extend a loan
     """
     lib = create_lib
-    user = lib.users_list[0]
-    book = lib.catalog[0]
+    user = next(iter(lib.users_list.values()))
+    book = next(iter(lib.catalog.values()))
     lib.borrow(user, book)
-    loan = lib.loans[0]
+    loan = next(iter(lib.loans.values()))
     print(loan)
     with pytest.raises(InvalidExtendDaysError):
         loan.extend(-1)
@@ -326,8 +331,12 @@ def test_loan_creation_with_invalid_user(create_lib):
         Invalid loan initialization: invalid user provided
     """
     lib = create_lib
-    with pytest.raises(LoanInitializationError):
-        Loan("Krzysztof Pijor", lib.catalog[0], 1)
+    with (pytest.raises(LoanInitializationError)):
+        Loan(
+            "Krzysztof Pijor",
+            list(lib.catalog.values())[0],
+            1
+        )
 
 
 @pytest.mark.regression
@@ -337,7 +346,11 @@ def test_loan_creation_with_invalid_book(create_lib):
     """
     lib = create_lib
     with pytest.raises(LoanInitializationError):
-        Loan(lib.users_list[0], "The Hobbit", 1)
+        Loan(
+            list(lib.users_list.values())[0],
+            "The Hobbit",
+            1
+        )
 
 
 @pytest.mark.regression
@@ -347,7 +360,11 @@ def test_loan_creation_with_invalid_book_days(create_lib):
     """
     lib = create_lib
     with pytest.raises(LoanInitializationError):
-        Loan(lib.users_list[0], lib.catalog[0], "1")
+        Loan(
+            list(lib.users_list.values())[0],
+            list(lib.catalog.values())[0],
+            "1"
+        )
 
 
 @pytest.mark.regression
@@ -356,8 +373,8 @@ def test_no_book_to_choose(create_lib):
         No book available in the list
     """
     lib = create_lib
-    books = lib.find_book_by_name("123")
-    with pytest.raises(MissingBookError):
+    books = lib.find_book_by_title("123")
+    with pytest.raises(MissingItemError):
         lib.choose_book(books)
 
 
@@ -367,9 +384,9 @@ def test_choose_with_one_option(create_lib):
         Only one book is returned from choose_book
     """
     lib = create_lib
-    books = lib.find_book_by_name("Dune")
-    books = lib.choose_book(books)
-    assert isinstance(books, Book)
+    book = lib.find_book_by_title("Dune")
+    book = lib.choose_book(book)
+    assert isinstance(book, Book)
 
 
 @pytest.mark.regression
@@ -378,10 +395,11 @@ def test_choose_with_more_option(create_lib):
         Choose a book from a list of two books (Book and EBook)
     """
     lib = create_lib
-    books = lib.find_book_by_name("1984")
+    book = lib.find_book_by_title("1984")
     with patch("builtins.input", return_value=2):
-        books = lib.choose_book(books)
-    assert isinstance(books, EBook)
+        book = lib.choose_book(book)
+        print(book)
+    assert isinstance(book, EBook)
 
 
 @pytest.mark.regression
@@ -390,7 +408,7 @@ def test_matching_book_by_name(create_lib):
         Find a book by a name (exist)
     """
     lib = create_lib
-    result = lib.find_book_by_name(" Potop ")
+    result = lib.find_book_by_title(" Potop ")
     assert result is not None
 
 
@@ -400,7 +418,7 @@ def test_no_matching_book_by_name(create_lib):
         Find a book by a name (not exist)
     """
     lib = create_lib
-    result = lib.find_book_by_name("Potopy")
+    result = lib.find_book_by_title("Potopy")
     assert len(result) == 0
 
 
@@ -445,23 +463,54 @@ def test_no_matching_book_by_author(create_lib):
 
 
 @pytest.mark.regression
-def test_find_existing_user(create_lib):
+def test_find_existing_user_by_name(create_lib):
     """
         Find existing user
     """
     lib = create_lib
-    user = lib.find_user("Anna Nowak")
+    user = lib.find_user_by_name("Anna Nowak")
     assert isinstance(user, User)
 
 
 @pytest.mark.regression
-def test_find_nonexistent_user(create_lib):
+def test_find_nonexistent_user_by_name(create_lib):
     """
         Attempt to find nonexistent user
     """
     lib = create_lib
-    user = lib.find_user("Tomasz Nowak")
+    user = lib.find_user_by_name("Tomasz Nowak")
     assert not isinstance(user, User)
+
+
+@pytest.mark.regression
+def test_find_existing_user_by_id(create_lib):
+    """
+        Find existing user
+    """
+    lib = create_lib
+    user_id = list(lib.users_id)[0]
+    user = lib.find_user_by_id(user_id)
+    assert isinstance(user, User)
+
+
+@pytest.mark.regression
+def test_find_nonexistent_user_by_id(create_lib):
+    """
+        Attempt to find nonexistent user
+    """
+    lib = create_lib
+    user = lib.find_user_by_id("123456789")
+    assert not isinstance(user, User)
+
+
+@pytest.mark.regression
+def test_find_nonexistent_book_by_id(create_lib):
+    """
+        Attempt to find nonexistent book
+    """
+    lib = create_lib
+    item = lib.find_book_by_id("123456789")
+    assert not isinstance(item, Item)
 
 
 @pytest.mark.regression
@@ -470,16 +519,16 @@ def test_borrow_unavailable_book_twice(create_lib):
         Attempt to borrow the unavailable book twice
     """
     lib = create_lib
-    book = lib.catalog[0]
-    user1 = lib.users_list[0]
-    user2 = lib.users_list[1]
+    book = list(lib.catalog.values())[0]
+    user1 = list(lib.users_list.values())[0]
+    user2 = list(lib.users_list.values())[1]
     lib.borrow(user1, book)
     lib.borrow(user2, book)
-    assert any(b in user1.borrowed_physical_books for b in book.copies)
-    assert user2 in book.waitlist
+    assert book.id in user1.borrowed_physical_books.values()
+    assert user2.id in book.waitlist
 
     lib.borrow(user2, book)
-    assert user2 in book.waitlist
+    assert user2.id in book.waitlist
 
 
 @pytest.mark.regression
@@ -499,25 +548,12 @@ def test_attempt_to_borrow_four_books(create_lib):
         Attempt to borrow four books when the maximum allowed is three
     """
     lib = create_lib
-    user = lib.users_list[0]
-    for i, book in enumerate(lib.catalog, start=1):
+    user = list(lib.users_list.values())[0]
+    for index, book in enumerate(lib.catalog.values(), start=1):
         lib.borrow(user, book)
-        if i == 4:
+        if index == 4:
             break
     assert len(user.borrowed_physical_books) == 3
-    assert user.waitlist is not None
-
-
-@pytest.mark.regression
-def test_attempt_remove_not_available_book_copy(create_lib):
-    """
-        Attempt to remove a not available book copy from the library
-    """
-    lib = create_lib
-    book_copy = lib.catalog[0].copies[0]
-    book_copy.is_available = False
-    with pytest.raises(MissingBookError):
-        lib.remove_book_copy(book_copy)
 
 
 @pytest.mark.regression
@@ -535,16 +571,65 @@ def test_attempt_remove_nonexistent_book(create_lib):
         ],
         2024,
     )
-    with pytest.raises(MissingBookError):
-        lib.remove_book(book)
+    with pytest.raises(MissingItemError):
+        lib.remove_item(book)
 
 
 @pytest.mark.regression
-def test_attempt_remove_nonexistent_book_copy(create_lib):
+def test_attempt_reduce_book_invalid_amount(create_lib):
     """
-        Attempt to remove a nonexistent book copy from the library
+        Attempt to reduce book copies with invalid amount
     """
     lib = create_lib
-    book_copy = BookCopy(lib.catalog[0])
-    with pytest.raises(MissingBookError):
-        lib.remove_book_copy(book_copy)
+    book = next(iter(lib.catalog.values()))
+    with pytest.raises(InvalidNumberOfBooksError):
+        lib.reduce_book_amount(book, 1)
+
+
+@pytest.mark.regression
+def test_attempt_reduce_book_not_available(create_lib):
+    """
+        Attempt to reduce book copies which are not available
+    """
+    lib = create_lib
+    book = next(iter(lib.catalog.values()))
+    user = next(iter(lib.users_list.values()))
+    lib.borrow(user, book)
+    with pytest.raises(MissingItemError):
+        lib.reduce_book_amount(book, 1)
+
+
+@pytest.mark.regression
+def test_attempt_reduce_book_nonexistent(create_lib):
+    """
+        Attempt to reduce a nonexistent book
+    """
+    lib = create_lib
+    book = Book(
+        "Nexus",
+        "Yuval Noah Harari",
+        [
+            "non-fiction", "history",
+            "technology", "society", "artificial intelligence"
+        ],
+        2024,
+    )
+
+    with pytest.raises(MissingItemError):
+        lib.reduce_book_amount(book, 1)
+
+
+@pytest.mark.regression
+def test_attempt_return_book_nonexistent_loan_id(create_lib):
+    """
+        Attempt to return a book that has nonexistent loan id
+    """
+    lib = create_lib
+    book = next(iter(lib.catalog.values()))
+    user = next(iter(lib.users_list.values()))
+    lib.borrow(user, book)
+    book_id = list(user.borrowed_physical_books.keys())[0]
+    user.borrowed_physical_books["123456789"] = user.borrowed_physical_books.pop(book_id)
+
+    with pytest.raises(MissingItemError):
+        lib.return_book(user, book)

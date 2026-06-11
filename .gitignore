@@ -30,7 +30,9 @@ report.xml
 # OS
 .DS_Store
 
+# debug
+data/db/library_debug.db
+
 # Your custom files
 brudnopis.py
-
 requirements.in

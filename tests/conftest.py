@@ -1,8 +1,7 @@
 import pytest
-from library.library import Library
 from library.book import Book, EBook
 from library.user import User
-from utils.data_loader import DataLoader
+from data.data_loader_json import init_library
 from pathlib import Path
 
 
@@ -154,18 +153,7 @@ def pytest_collection_modifyitems(config, items):
 
 @pytest.fixture(scope="function")
 def create_lib():
-    lib = Library()
-    """users = create_users()
-    books, ebooks = create_books()"""
-    users = DataLoader.load_users(f"{BASE_DIR}/data/users.json")
-    books = DataLoader.load_books(f"{BASE_DIR}/data/books.json")
-    ebooks = DataLoader.load_ebooks(f"{BASE_DIR}/data/ebooks.json")
+    lib = init_library()
 
-    for book in books:
-        lib.add_book(book)
-    for ebook in ebooks:
-        lib.add_book(ebook)
-    for user in users:
-        lib.register_user(user)
     yield lib
     del lib

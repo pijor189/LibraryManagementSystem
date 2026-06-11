@@ -1,16 +1,26 @@
 from .base import LibraryError
 
 
-class BookError(LibraryError):
-    """Basic exceptions for book exceptions"""
+class ItemError(LibraryError):
+    """Basic exceptions for item exceptions"""
     pass
 
 
-class BookInitializationError(BookError):
+class ItemInitializationError(ItemError):
+    """Raise an exceptions for invalid item initialization"""
+    pass
+
+
+class BookInitializationError(ItemError):
     """Raise an exceptions for invalid book initialization"""
     pass
 
 
-class MissingBookError(BookError):
-    """Raise an exceptions when the book does not exist"""
+class EBookInitializationError(ItemError):
+    """Raise an exceptions for invalid ebook initialization"""
+    pass
+
+
+class MissingItemError(ItemError):
+    """Raise an exceptions when the item does not exist"""
     pass

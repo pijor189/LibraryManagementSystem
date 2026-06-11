@@ -1,6 +1,7 @@
 import json
 from library.book import Book, EBook
 from library.user import User
+from library.library import Library
 
 
 class DataLoader:
@@ -42,3 +43,19 @@ class DataLoader:
             data = json.load(f)
 
         return [User(item["name"]) for item in data]
+
+
+def init_library() -> Library:
+    lib = Library()
+    users = DataLoader.load_users("data/json/users.json")
+    books = DataLoader.load_books("data/json/books.json")
+    ebooks = DataLoader.load_ebooks("data/json/ebooks.json")
+
+    for book in books:
+        lib.add_book(book)
+    for ebook in ebooks:
+        lib.add_book(ebook)
+    for user in users:
+        lib.register_user(user)
+
+    return lib

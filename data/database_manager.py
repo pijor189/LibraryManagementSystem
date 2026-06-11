@@ -2,8 +2,9 @@ import sqlite3
 
 
 class DatabaseManager:
-    def __init__(self, db_name="data/library.db"):
+    def __init__(self, db_name="data/db/library.db"):
         self.conn = sqlite3.connect(db_name)
+        self.conn.text_factory = str
         self.cursor = self.conn.cursor()
 
     def execute(self, query, params=()):

@@ -1,10 +1,10 @@
 CREATE TABLE IF NOT EXISTS users (
-    id INTEGER PRIMARY KEY,
+    id TEXT PRIMARY KEY,
     name TEXT NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS books (
-    id INTEGER PRIMARY KEY,
+    id TEXT PRIMARY KEY,
     title TEXT NOT NULL,
     author TEXT NOT NULL,
     genre TEXT NOT NULL,
@@ -12,16 +12,8 @@ CREATE TABLE IF NOT EXISTS books (
     amount INTEGER NOT NULL
 );
 
-CREATE TABLE IF NOT EXISTS book_copies (
-    id INTEGER PRIMARY KEY,
-    book_id INTEGER NOT NULL,
-    is_available INTEGER NOT NULL DEFAULT 1,
-
-    FOREIGN KEY(book_id) REFERENCES books(id)
-);
-
 CREATE TABLE IF NOT EXISTS ebooks (
-    id INTEGER PRIMARY KEY,
+    id TEXT PRIMARY KEY,
     title TEXT NOT NULL,
     author TEXT NOT NULL,
     genre TEXT NOT NULL,
@@ -30,12 +22,12 @@ CREATE TABLE IF NOT EXISTS ebooks (
 );
 
 CREATE TABLE IF NOT EXISTS borrowings (
-    id INTEGER PRIMARY KEY,
-    user_id INTEGER,
-    book_id INTEGER,
-    type TEXT NOT NULL CHECK(type IN ('physical', 'ebook')),
+    id TEXT PRIMARY KEY,
+    user_id TEXT,
+    book_id TEXT,
+    type TEXT NOT NULL CHECK(type IN ('book', 'ebook')),
     borrowed_at TEXT NOT NULL,
-    due_to TEXT NOT NULL,
+    due_to TEXT,
     returned_at TEXT,
 
     FOREIGN KEY(user_id) REFERENCES users(id),
@@ -43,10 +35,10 @@ CREATE TABLE IF NOT EXISTS borrowings (
 );
 
 CREATE TABLE IF NOT EXISTS waitlist (
-    id INTEGER PRIMARY KEY,
-    user_id INTEGER NOT NULL,
-    book_id INTEGER NOT NULL,
-    created_at TEXT,
+    id TEXT PRIMARY KEY,
+    user_id TEXT,
+    book_id TEXT,
+    created_at,
 
     FOREIGN KEY(user_id) REFERENCES users(id),
     FOREIGN KEY(book_id) REFERENCES books(id)

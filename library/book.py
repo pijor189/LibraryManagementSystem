@@ -1,16 +1,18 @@
-from exceptions.book_exceptions import BookInitializationError
-from typing import Self
+from exceptions.book_exceptions import (
+    ItemInitializationError,
+    BookInitializationError,
+    EBookInitializationError
+)
 from datetime import datetime
 
 
-class Book:
+class Item:
     def __init__(
-        self,
-        title: str,
-        author: str,
-        genre: list[str] | str,
-        year: int,
-        amount: int = 1,
+            self,
+            title: str,
+            author: str,
+            genre: list[str] | str,
+            year: int
     ):
         if (
             not isinstance(title, str)
@@ -21,80 +23,75 @@ class Book:
             or author.strip() == ""
             or year == 0
             or year > datetime.now().year
-            or not isinstance(amount, int)
             or (isinstance(genre, list) and not genre)
             or (isinstance(genre, str) and genre.strip() == "")
         ):
-            raise BookInitializationError("Invalid book initialization")
+            raise ItemInitializationError("Invalid item initialization")
+
+        self.id = 0
         self.title = title
         self.author = author
         self.genre = genre
         self.year = year
-        self.amount = amount
-        self.id = 0
-        self.copies = []
-        self.waitlist = []
-
-    def __str__(self):
-        return (f"Book: Title: {self.title} - Author: {self.author} \
-        - Genre: {self.genre} - Year: {self.year}")
-
-    def __repr__(self):
-        return (f"Book: Title: {self.title} - Author: {self.author} \
-        - Genre: {self.genre} - Year: {self.year}\n")
-
-    def available_copy(self) -> Self | None:
-        for copy in self.copies:
-            if copy.is_available:
-                return copy
-        return None
 
 
-class BookCopy:
-    def __init__(self, book: Book):
-        self.book = book
-        self.id = 0
-        self.loan = None
-        self.is_available = True
-
-    def __str__(self):
-        return (
-            f"Book: Title: {self.book.title} - Author: {self.book.author} \
-            - Genre: {self.book.genre} - Year: {self.book.year}"
-        )
-
-    def __repr__(self):
-        return (
-            f"Book: Title: {self.book.title} - Author: {self.book.author} \
-            - Genre: {self.book.genre} - Year: {self.book.year}"
-        )
-
-
-class EBook(Book):
+class Book(Item):
     def __init__(
-        self, title: str, author: str,
-        genre: list[str] | str, year: int,
+        self,
+        title: str,
+        author: str,
+        genre: list[str] | str,
+        year: int,
+        amount: int = 1,
+    ):
+        if (
+            not isinstance(amount, int)
+            or amount < 1
+        ):
+            raise BookInitializationError("Invalid book initialization")
+        super().__init__(title, author, genre, year)
+        self.id = 0
+        self.amount = amount
+        self.borrowed = 0
+        self.waitlist = set()
+
+    def __str__(self):
+        return (f"Book: Title: {self.title} - Author: {self.author}"
+                f" - Genre: {self.genre} - Year: {self.year}")
+
+    def __repr__(self):
+        return (f"Book: Title: {self.title} - Author: {self.author}"
+                f" - Genre: {self.genre} - Year: {self.year}\n")
+
+    def is_book_available(self) -> bool:
+        return False if self.amount == self.borrowed else True
+
+
+class EBook(Item):
+    def __init__(
+        self,
+        title: str,
+        author: str,
+        genre: list[str] | str,
+        year: int,
         file_size: int
     ):
         if not isinstance(file_size, int) or file_size < 0:
-            raise BookInitializationError("Invalid ebook initialization")
+            raise EBookInitializationError("Invalid ebook initialization")
         super().__init__(title, author, genre, year)
         self.id = 0
         self.file_size = file_size
 
     def __str__(self):
         return (
-            f"EBook: Title: {self.title} - Author: {self.author} \
-            - Genre: {self.genre} - Year: {self.year} \
-            - File size: {self.file_size}"
+            f"EBook: Title: {self.title} - Author: {self.author}"
+            f" - Genre: {self.genre} - Year: {self.year}"
+            f" - File size: {self.file_size}"
         )
 
     def __repr__(self):
         return (
-            f"EBook: Title: {self.title} - Author: {self.author} \
-            - Genre: {self.genre} - Year: {self.year} \
-            - File size: {self.file_size}\n"
+            f"EBook: Title: {self.title} - Author: {self.author}"
+            f" - Genre: {self.genre} - Year: {self.year}"
+            f" - File size: {self.file_size}"
         )
-
-    def available_copy(self) -> Self:
-        return self

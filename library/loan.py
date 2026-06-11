@@ -1,24 +1,26 @@
 from library.user import User
-from library.book import EBook, BookCopy
-from datetime import datetime, timedelta
+from library.book import EBook, Book
+from datetime import date, timedelta
 from exceptions.loan_exceptions import (
-    LoanInitializationError, InvalidExtendDaysError
+    LoanInitializationError,
+    InvalidExtendDaysError
 )
 
 
 class Loan:
     MAX_DAYS = 30
 
-    def __init__(self, user: User, book: BookCopy | EBook, days: int = 30):
+    def __init__(self, user: User, book: Book | EBook, days: int = 30):
         if (
             not isinstance(user, User)
-            or (not isinstance(book, BookCopy) and not isinstance(book, EBook))
+            or (not isinstance(book, Book) and not isinstance(book, EBook))
             or not isinstance(days, int)
         ):
             raise LoanInitializationError("Invalid loan initialization")
-        self.user = user
-        self.book = book
-        self.borrowed_at = datetime.now()
+        self.id = 0
+        self.user_id = user.id
+        self.book_id = book.id
+        self.borrowed_at = date.today()
         if isinstance(book, EBook):
             self.due_date = None
         else:
@@ -35,7 +37,7 @@ class Loan:
         return f"Borrowed at: {self.borrowed_at}\nDue date: {self.due_date}"
 
     def extend(self, days: int) -> None:
-        if isinstance(self.book, EBook):
+        if not self.due_date:
             return
 
         if days <= 0:
@@ -50,6 +52,6 @@ class Loan:
             self.due_date = new_due
 
     def is_overdue(self) -> bool:
-        if isinstance(self.book, EBook):
+        if not self.due_date:
             return False
-        return datetime.now() > self.due_date
+        return date.today() > self.due_date

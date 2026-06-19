@@ -1,10 +1,8 @@
 import os
-import data.state as state
+import data.database_state as state
 
-from library.book import EBook
-from library.library import Library
-from library.user import User
-from library.loan import Loan
+from rich.console import Console
+from rich.table import Table
 from typing import Any
 from exceptions.user_exceptions import UserInitializationError
 from exceptions.book_exceptions import MissingItemError
@@ -26,7 +24,7 @@ def clear_console() -> None:
     os.system("cls" if os.name == "nt" else "clear")
 
 
-def show(data: Any, clear: bool=True) -> None:
+def show_options(data: Any, clear: bool = True) -> None:
     if clear:
         clear_console()
     if not data:
@@ -35,13 +33,41 @@ def show(data: Any, clear: bool=True) -> None:
         print(d)
 
 
+def display_data(data: Any, clear: bool = True) -> None:
+    if clear:
+        clear_console()
+    if not data:
+        return
+
+    console = Console()
+    table = Table(show_lines=True)
+
+    if isinstance(data, list):
+        data = [dict(d) for d in data]
+
+        for header in data[0].keys():
+            table.add_column(header)
+
+        for d in data:
+            table.add_row(*[str(v) for v in d.values()])
+    else:
+        data = dict(data)
+
+        for header in data.keys():
+            table.add_column(header)
+
+        table.add_row(*[str(v) for v in data.values()])
+
+    console.print(table)
+
+
 def run_cli() -> None:
     try:
         running = True
 
         while running:
             clear_console()
-            show(
+            show_options(
                 [
                     "Welcome!",
                     "1. Log in",
@@ -52,28 +78,28 @@ def run_cli() -> None:
             option = int(input("Choose an option: "))
             clear_console()
             if option == 1:
-                user = state.lib.find_user_by_id(
+                user = state.user_repo.find_user_by_id(
                     input("Please provide your ID: ")
                 )
                 if not user:
-                    print("\nNot valid ID, please try again")
+                    print("\nNot valid ID, please try again.")
                     input("\nPress ENTER to continue...")
                 else:
+                    user_id = user[0]
                     running = False
 
             elif option == 2:
                 first_name = input("Please provide your first name: ")
                 last_name = input("Please provide your last name: ")
-                state.user_repository.register_user(
-                    " ".join([first_name, last_name])
+                user_id = state.user_repo.register_user(
+                    " ".join([first_name.strip(), last_name.strip()])
                 )
-                user = list(state.lib.users_list.values())[-1]
                 running = False
             else:
                 running = False
                 state.db.close()
                 exit()
-    except UserInitializationError:
+    except (UserInitializationError, Exception):
         state.db.close()
         exit()
 
@@ -83,13 +109,12 @@ def run_cli() -> None:
         clear_console()
         try:
             print("------LIBRARY SYSTEM------")
-            show(USER_OPTIONS)
-            number = int(input("Choose an option: "))
+            show_options(USER_OPTIONS)
+            option = int(input("Choose an option: "))
             clear_console()
             if not menu(
-                state.lib,
-                user,
-                number
+                user_id,
+                option
             ):
                 running = False
             else:
@@ -101,82 +126,106 @@ def run_cli() -> None:
     state.db.close()
 
 
-def menu(lib: Library, user: User, option: int) -> bool:
+def menu(user_id: str, option: int) -> bool:
     if option == 1:
-        show(lib.get_all_books())
+        display_data(state.book_repo.get_all_books())
     elif option == 2:
-        show(lib.get_available_books())
+        display_data(state.book_repo.get_available_books())
     elif option == 3:
-        find_book_options(lib)
+        find_book_options()
     elif option == 4:
-        show_user_account(lib, user)
+        show_user_account(user_id)
     elif option == 5:
-        borrow_option(lib, user)
+        borrow_option(user_id)
     elif option == 6:
-        extend_option(lib, user)
+        extend_option(user_id)
     elif option == 7:
-        return_option(lib, user)
+        return_option(user_id)
     elif option == 8:
         return False
     else:
-        print("Wrong option")
+        print("Wrong option.")
     return True
 
 
-def find_book_options(lib: Library) -> None:
+def find_book_options() -> None:
     running = True
 
     while running:
         clear_console()
-        show(
+        show_options(
             [
-                "1. Find book by a name",
-                "2. Find book by a genre",
-                "3. Find book by an author",
-                "4. Back to menu",
+                "1. Find a book by name",
+                "2. Find a book by genre",
+                "3. Find a book by author",
+                "4. Find a book by id",
+                "5. Back to menu"
             ]
         )
-        number = int(input("Select: "))
+        option = int(input("Select: "))
 
-        if not isinstance(number, int) or number not in range(1, 5):
-            print("Not valid number, choose again")
+        if not isinstance(option, int) or option not in range(1, 6):
+            print("Not valid option, choose again.")
             input("\nPress ENTER to continue...")
         else:
             clear_console()
-            if number == 1:
-                name = input("Name of search book: ")
-                show(lib.find_book_by_title(name))
-            elif number == 2:
+            if option == 1:
+                title = input("Title of search book: ")
+                display_data(state.book_repo.find_book_by_title(title))
+            elif option == 2:
                 genre = input("Genre of search book: ")
-                show(lib.find_books_by_genre(genre))
-            elif number == 3:
+                display_data(state.book_repo.find_book_by_genre(genre))
+            elif option == 3:
                 author = input("Author of search book: ")
-                show(lib.find_books_by_author(author))
+                display_data(state.book_repo.find_book_by_author(author))
+            elif option == 4:
+                uid = input("ID of search book: ")
+                display_data(state.book_repo.find_book_by_id(uid))
             running = False
 
 
-def find_user_option(lib: Library) -> None:
-    user_name = input("Name a user what you want to find: ")
-    result = lib.find_user_by_name(user_name)
-    print(result if result else f"Provide user {user_name} does not exist")
+def find_user_option() -> None:
+    running = True
+
+    while running:
+        clear_console()
+        show_options(
+            [
+                "1. Find an user by name",
+                "2. Find an user by id",
+                "3. Back to menu"
+            ]
+        )
+        option = int(input("Select: "))
+
+        if not isinstance(option, int) or option not in range(1, 4):
+            print("Not valid option, choose again.")
+            input("\nPress ENTER to continue...")
+        else:
+            clear_console()
+            if option == 1:
+                name = input("Name of search user: ")
+                display_data(state.user_repo.find_user_by_name(name))
+            elif option == 2:
+                uid = input("ID of search book: ")
+                display_data(state.user_repo.find_user_by_id(uid))
+            running = False
 
 
-def show_user_account(lib: Library, user: User) -> None:
-    books = [
-        lib.find_book_by_id(book)
-        for book in user.borrowed_physical_books.values()
-    ]
-    ebooks = [
-        lib.find_book_by_id(ebook)
-        for ebook in user.borrowed_ebooks.values()
-    ]
-    print(f"User\n\n{user.id} - {user.name}\n\nBorrowed books:\n")
-    show(books, False)
-    show(ebooks, False)
+def show_user_account(user_id: str) -> None:
+    user = state.user_repo.find_user_by_id(user_id)
+    books = state.user_repo.get_all_books_from_user(user_id)
+    ebooks = state.user_repo.get_all_ebooks_from_user(user_id)
+    books.extend(ebooks)
+
+    print(f"User: {user["id"]} - {user["name"]}")
+    display_data(books, False)
 
 
 def get_days() -> int:
-    while True:
+    attempts = 1
+
+    while attempts < 4:
         days = int(
             input(
                 "How many days would you like to borrow this book for? "
@@ -184,52 +233,86 @@ def get_days() -> int:
             )
         )
         if days <= 0 or days > 30:
-            print("You have provided invalid count of days")
+            print("You have provided invalid count of days.")
+            attempts += 1
         else:
             return days
-
-
-def borrow_option(lib: Library, user: User) -> None:
-    book_name = input("Name a book what you want to borrow: ")
-    book = lib.find_book_by_title(book_name)
-    book = lib.choose_book(book)
-    days = Loan.MAX_DAYS
-
-    if not isinstance(book, EBook):
-        if book.is_book_available():
-            days = get_days()
-        else:
-            print(f"Book '{book.title}' is not available")
-    state.borrowing_repository.borrow_book(user, book, days)
-
-
-def extend_option(lib: Library, user: User) -> None:
-    if user.borrowed_physical_books:
-        print("Books you borrowed:")
-        for index, book_id in enumerate(user.borrowed_physical_books.values(), start=1):
-            book = lib.find_book_by_id(book_id)
-            print(f"{index}. {book.id} - {book.title}")
-
-        book_id = input("Provide book ID you want to extend: ")
-        book = lib.find_book_by_id(book_id)
-
-        for loan in lib.loans.values():
-            if user.id == loan.user_id and book.id == loan.book_id:
-                state.borrowing_repository.extend_loan(loan, get_days())
     else:
-        print("You dont have any books that you can extend")
+        print("Too many failed attempts. Lockout duration: 1 day.")
+        return 1
 
 
-def return_option(lib: Library, user: User) -> None:
-    if user.borrowed_physical_books:
-        print("Books you borrowed:\n")
+def borrow_option(user_id: str) -> None:
+    name = input("Name a book what you want to borrow: ")
+    data = state.book_repo.find_book_by_title(name)
 
-        for index, book_id in enumerate(user.borrowed_physical_books.values(), start=1):
-            book = lib.find_book_by_id(book_id)
-            print(f"{index}. {book.id} - {book.title}")
+    if not data:
+        print(f"Book {name} does not exist")
+        return
+    elif len(data) > 1:
+        choice = input(
+            "Do you want book(1) or ebook(2)?\nChoose one option "
+            "or click ENTER: "
+        ).strip()
+        option = int(choice) if choice.isdigit() else 0
 
-        book_id = input("Provide book ID what you want to return: ")
-        book = lib.find_book_by_id(book_id)
-        state.borrowing_repository.return_book(user, book)
+        if option in range(1, 3):
+            book = data[option - 1]
+        elif option == 0:
+            return
+        else:
+            print("Not valid option.")
+            return
+    else:
+        book = data[0]
+
+    days = 30
+
+    if book["type"] == 'book':
+        days = get_days()
+
+    state.borrow_repo.borrow_book(user_id, book["id"], days)
+
+
+def extend_option(user_id: str) -> None:
+    books = state.user_repo.get_all_books_from_user(user_id)
+
+    if books:
+        display_data(books)
+
+        book_id = input("\nProvide book ID you want to extend "
+                        "or click ENTER: ").strip()
+
+        if book_id == "":
+            return
+
+        book = state.book_repo.find_book_by_id(book_id)
+
+        if book:
+            state.borrow_repo.extend_loan(book_id, user_id, get_days())
+        else:
+            print(f"Book {book_id} does not exist.")
+    else:
+        print("You dont have any books that you can extend.")
+
+
+def return_option(user_id: str) -> None:
+    books = state.user_repo.get_all_books_from_user(user_id)
+
+    if books:
+        display_data(books)
+
+        book_id = input("\nProvide book ID you want to return "
+                        "or click ENTER: ").strip()
+
+        if book_id == "":
+            return
+
+        book = state.book_repo.find_book_by_id(book_id)
+
+        if book:
+            state.borrow_repo.return_book(user_id, book_id)
+        else:
+            print(f"Book {book_id} does not exist.")
     else:
         print("You dont have any books that you can return")

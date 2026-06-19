@@ -1,6 +1,6 @@
 from library.user import User
 from library.book import EBook, Book
-from datetime import date, timedelta
+from datetime import date, timedelta, datetime
 from exceptions.loan_exceptions import (
     LoanInitializationError,
     InvalidExtendDaysError
@@ -43,15 +43,14 @@ class Loan:
         if days <= 0:
             raise InvalidExtendDaysError("Days must be greater than 0")
 
-        new_due = self.due_date + timedelta(days=days)
-        max_due = self.due_date + timedelta(days=self.MAX_DAYS)
-
-        if new_due > max_due:
-            self.due_date = max_due
-        else:
-            self.due_date = new_due
+        days = min(days, self.MAX_DAYS)
+        self.due_date = datetime.strptime(str(self.due_date), '%Y-%m-%d').date()
+        self.due_date = self.due_date + timedelta(days=days)
 
     def is_overdue(self) -> bool:
         if not self.due_date:
             return False
+
+        self.due_date = datetime.strptime(str(self.due_date), '%Y-%m-%d').date()
+
         return date.today() > self.due_date

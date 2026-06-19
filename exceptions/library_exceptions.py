@@ -17,3 +17,10 @@ class UserHasBorrowedItemsError(LibraryOperationError):
         a user with borrowed books
     """
     pass
+
+class BookCurrentlyBorrowedError(LibraryOperationError):
+    """
+        Raise an exceptions when attempting to remove
+        a book that is currently borrowed
+    """
+    pass

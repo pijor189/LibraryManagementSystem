@@ -1,87 +1,143 @@
-import data.state as state
-from library.book import Item, Book
-from library.user import User
-from library.loan import Loan
 from data.database_manager import DatabaseManager
-from datetime import date
+from exceptions.book_exceptions import MissingItemError
+from utils.uid import generate_uid
+from datetime import date, datetime, timedelta
+from typing import Self
 
 
 class BorrowingRepository:
-    def __init__(self, db: DatabaseManager):
+    def __init__(
+            self,
+            db: DatabaseManager,
+            book_repo,
+            user_repo,
+            waitlist_repo
+    ):
         self.db = db
+        self.book_repo = book_repo
+        self.user_repo = user_repo
+        self.waitlist_repo = waitlist_repo
 
     def borrow_book(
         self,
-        user: User,
-        item: Item | list[Item],
+        user_id: str,
+        book_id: str,
         days: int = 30
-    ):
-        state.lib.borrow(user, item, days)
-        loan_id = list(state.lib.loans.keys())[-1]
-        loan = state.lib.loans[loan_id]
-        type = 'book' if isinstance(item, Book) else 'ebook'
+    ) -> None:
+        book = self.book_repo.find_book_by_id(book_id)
+        if not book:
+            raise MissingItemError(
+                f"Book {book_id} does not exist."
+            )
+        available = self.book_repo.is_book_available(book_id)
 
-        self.db.execute(
+        if book["type"] == 'book' and not available["available"]:
+            self.waitlist_repo.add_user_to_waitlist(user_id, book_id)
+        else:
+            loans = self.get_all_loans()
+            loan_ids = set()
+
+            for loan in loans:
+                loan_ids.add(loan["id"])
+
+            uid = generate_uid(loan_ids)
+            days = min(days, 30)
+            due_to = date.today() + timedelta(days=days)
+            self.db.execute(
+                """
+                INSERT INTO borrowings(
+                id, user_id, book_id, type, 
+                borrowed_at, due_to, returned_at)
+                VALUES (?, ?, ?, ?, ?, ?, ?)
+                """,
+                (
+                    uid,
+                    user_id,
+                    book_id,
+                    book["type"],
+                    date.today(),
+                    due_to if book["type"] == 'book' else None,
+                    None
+                )
+            )
+
+    def extend_loan(self, book_id: str, user_id: str, days: int = 30) -> None:
+        loan = self.db.fetchone(
             """
-            INSERT INTO borrowings(
-            id, user_id, book_id, type, 
-            borrowed_at, due_to, returned_at)
-            VALUES (?, ?, ?, ?, ?, ?, ?)
+            SELECT id, due_to
+            FROM borrowings
+            WHERE book_id = ?
+                AND user_id = ?
+                AND returned_at IS NULL
             """,
             (
-                loan_id,
-                loan.user_id,
-                loan.book_id,
-                type,
-                loan.borrowed_at,
-                loan.due_date,
-                loan.returned_at
+                book_id,
+                user_id
             )
         )
 
-    def extend_loan(self, loan: Loan, days: int = 30) -> None:
-        loan.extend(days)
+        loan_id = loan["id"]
+        due_to = datetime.strptime(str(loan["due_to"]), '%Y-%m-%d').date()
+        due_to = due_to + timedelta(days=days)
 
         self.db.execute(
             """
             UPDATE borrowings
             SET due_to = ?
-            WHERE user_id = ? and book_id = ?
+            WHERE id = ?
             """,
             (
-                loan.due_date,
-                loan.user_id,
-                loan.book_id
+                due_to,
+                loan_id
             )
         )
 
-    def return_book(self, user: User, book: Book) -> None:
-        state.lib.return_book(user, book)
+    def return_book(self, user_id: str, book_id: str) -> None:
+        self.db.execute(
+            """
+            UPDATE borrowings
+            SET returned_at = ?
+            WHERE user_id = ? 
+                AND book_id = ? 
+                AND returned_at IS NULL
+            """,
+            (
+                date.today(),
+                user_id,
+                book_id
+            )
+        )
+
+        if self.book_repo.is_book_available(book_id):
+            self.waitlist_repo.manage_queue(book_id)
+
+    def return_all_items(self, user_id: str) -> None:
+        borrow_books = self.user_repo.get_all_books_from_user(user_id)
+        books = []
+
+        for book in borrow_books:
+            books.append(book["id"])
 
         self.db.execute(
             """
             UPDATE borrowings
             SET returned_at = ?
-            WHERE user_id = ? and book_id = ? and returned_at IS NULL
+            WHERE user_id = ? 
+                AND returned_at IS NULL
             """,
             (
                 date.today(),
-                user.id,
-                book.id
+                user_id
             )
         )
 
-    def return_all_items(self, user: User) -> None:
-        state.lib.return_all_items(user)
+        for book in books:
+            self.waitlist_repo.manage_queue(book)
 
-        self.db.execute(
+    def get_all_loans(self) -> Self:
+        return self.db.fetchall(
             """
-            UPDATE borrowings
-            SET returned_at = ?
-            WHERE user_id = ? and returned_at IS NULL
-            """,
-            (
-                date.today(),
-                user.id
-            )
+            SELECT id
+            FROM borrowings
+            """
         )

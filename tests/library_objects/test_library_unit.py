@@ -234,7 +234,7 @@ def test_not_valid_data_provided_to_borrow(create_lib):
         Not register user provided to borrow function
     """
     lib = create_lib
-    user = "Adam Nowak"
+    user = User("Adam Nowak")
     book = next(iter(lib.catalog.values()))
     with pytest.raises(MissingUserError):
         lib.borrow(user, book)

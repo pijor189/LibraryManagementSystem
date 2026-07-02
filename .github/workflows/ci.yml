@@ -42,7 +42,7 @@ jobs:
             --html=pytest_report.html \
             --self-contained-html \
             --cov=library \
-            --cov=repositories
+            --cov=repositories \
             --cov-report=html \
             --cov-report=xml \
             --junitxml=junit.xml -o junit_family=legacy

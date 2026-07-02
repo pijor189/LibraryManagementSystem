@@ -1,9 +1,10 @@
-import pytest
-from library.book import Book, EBook
-from library.user import User
-from data.data_loader_json import init_library
 from pathlib import Path
 
+import pytest
+
+from data.data_loader_json import init_library
+from library.book import Book, EBook
+from library.user import User
 
 BASE_DIR = Path(__file__).resolve().parents[1]
 

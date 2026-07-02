@@ -1,8 +1,7 @@
 import data.library_state as state
-
 from data.database_manager import DatabaseManager
-from library.loan import Loan
 from library.book import Book
+from library.loan import Loan
 
 
 def migrate_borrowings_to_object(db: DatabaseManager):

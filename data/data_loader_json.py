@@ -1,7 +1,8 @@
 import json
+
 from library.book import Book, EBook
-from library.user import User
 from library.library import Library
+from library.user import User
 
 
 class DataLoader:

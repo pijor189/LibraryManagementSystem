@@ -1,12 +1,12 @@
 import os
-import data.database_state as state
+from typing import Any
 
 from rich.console import Console
 from rich.table import Table
-from typing import Any
-from exceptions.user_exceptions import UserInitializationError
-from exceptions.book_exceptions import MissingItemError
 
+import data.database_state as state
+from exceptions.book_exceptions import MissingItemError
+from exceptions.user_exceptions import UserInitializationError
 
 USER_OPTIONS = [
     "1. Show all books",

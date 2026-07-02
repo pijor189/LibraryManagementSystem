@@ -1,6 +1,5 @@
 import logging
 
-
 #  create a logger
 logger = logging.getLogger("Library Logger")
 logger.setLevel(logging.INFO)

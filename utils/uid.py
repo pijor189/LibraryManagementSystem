@@ -1,7 +1,7 @@
 import random
 
 
-def generate_uid(uid_list: set) -> str:
+def generate_uid(uid_list: set[str]) -> str:
     while True:
         uid = "".join([str(random.randint(0, 999)).zfill(3) for _ in range(2)])
         if uid not in uid_list:

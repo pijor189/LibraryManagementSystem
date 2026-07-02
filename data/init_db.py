@@ -1,8 +1,5 @@
 from data.database_manager import DatabaseManager
-from data.migrate_books import (
-    migrate_books_from_json,
-    migrate_ebooks_from_json
-)
+from data.migrate_books import migrate_books_from_json, migrate_ebooks_from_json
 from data.migrate_users import migrate_users_from_json
 
 

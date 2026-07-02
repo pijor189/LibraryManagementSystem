@@ -1,23 +1,19 @@
+from unittest.mock import patch
+
 import pytest
-from library.user import User
-from library.book import Book, EBook, Item
-from library.loan import Loan
+
 from exceptions.book_exceptions import (
     BookInitializationError,
     EBookInitializationError,
     ItemInitializationError,
-    MissingItemError
-)
-from exceptions.user_exceptions import (
-    UserInitializationError,
-    MissingUserError
+    MissingItemError,
 )
 from exceptions.library_exceptions import InvalidNumberOfBooksError
-from exceptions.loan_exceptions import (
-    InvalidExtendDaysError,
-    LoanInitializationError
-)
-from unittest.mock import patch
+from exceptions.loan_exceptions import InvalidExtendDaysError, LoanInitializationError
+from exceptions.user_exceptions import MissingUserError, UserInitializationError
+from library.book import Book, EBook, Item
+from library.loan import Loan
+from library.user import User
 
 
 @pytest.mark.smoke
@@ -240,7 +236,7 @@ def test_not_valid_data_provided_to_borrow(create_lib):
     lib = create_lib
     user = "Adam Nowak"
     book = next(iter(lib.catalog.values()))
-    with pytest.raises(Exception):
+    with pytest.raises(MissingUserError):
         lib.borrow(user, book)
 
 
@@ -629,7 +625,8 @@ def test_attempt_return_book_nonexistent_loan_id(create_lib):
     user = next(iter(lib.users_list.values()))
     lib.borrow(user, book)
     book_id = list(user.borrowed_physical_books.keys())[0]
-    user.borrowed_physical_books["123456789"] = user.borrowed_physical_books.pop(book_id)
+    user.borrowed_physical_books["123456789"] = (
+        user.borrowed_physical_books.pop(book_id))
 
     with pytest.raises(MissingItemError):
         lib.return_book(user, book)

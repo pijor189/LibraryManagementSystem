@@ -1,11 +1,9 @@
+from typing import Any
+
 from data.database_manager import DatabaseManager
 from exceptions.library_exceptions import UserHasBorrowedItemsError
-from exceptions.user_exceptions import (
-    MissingUserError,
-    UserInitializationError
-)
+from exceptions.user_exceptions import MissingUserError, UserInitializationError
 from utils.uid import generate_uid
-from typing import Self
 
 
 class UserRepository:
@@ -26,7 +24,7 @@ class UserRepository:
 
         self.db.execute(
             """
-            INSERT INTO users(id, name) 
+            INSERT INTO users(id, name)
             VALUES (?, ?)
             """,
             (
@@ -54,7 +52,7 @@ class UserRepository:
             )
             if borrowed_books:
                 raise UserHasBorrowedItemsError(
-                    f"User {user_id} has borrowed books: {borrowed_books} "
+                    f"User {user_id} has borrowed books "
                     "and must return them before unregistering."
                 )
             else:
@@ -73,7 +71,7 @@ class UserRepository:
                 f"User {user_id} does not exist."
             )
 
-    def find_user_by_id(self, user_id: str) -> Self:
+    def find_user_by_id(self, user_id: str) -> Any:
         return self.db.fetchone(
             """
             SELECT *
@@ -85,31 +83,31 @@ class UserRepository:
             )
         )
 
-    def find_user_by_name(self, name: str) -> Self:
+    def find_user_by_name(self, name: str) -> list[Any]:
         name = " ".join(name.lower().split())
 
         return self.db.fetchall(
             """
             SELECT *
             FROM users
-            WHERE name = ?
+            WHERE LOWER(name) = ?
             """,
             (
                 name,
             )
         )
 
-    def get_all_users(self) -> Self:
+    def get_all_users(self) -> list[Any]:
         return self.db.fetchall(
             "SELECT * FROM users"
         )
 
-    def get_all_books_from_user(self, user_id: str) -> Self:
+    def get_all_books_from_user(self, user_id: str) -> list[Any]:
         return self.db.fetchall(
             """
             SELECT b.id, b.title, b.author, 'book' AS type, br.due_to
             FROM books b
-            JOIN borrowings br 
+            JOIN borrowings br
             ON b.id = br.book_id
             WHERE br.user_id = ?
                 AND br.returned_at IS NULL
@@ -119,12 +117,12 @@ class UserRepository:
             )
         )
 
-    def get_all_ebooks_from_user(self, user_id: str) -> Self:
+    def get_all_ebooks_from_user(self, user_id: str) -> list[Any]:
         return self.db.fetchall(
             """
             SELECT e.id, e.title, e.author, 'ebook' AS type
             FROM ebooks e
-            JOIN borrowings br 
+            JOIN borrowings br
             ON e.id = br.book_id
             WHERE br.user_id = ?
                 AND br.returned_at IS NULL

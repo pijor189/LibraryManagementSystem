@@ -1,8 +1,8 @@
 import json
-import data.library_state as state
 
-from library.book import Book, EBook
+import data.library_state as state
 from data.database_manager import DatabaseManager
+from library.book import Book, EBook
 
 
 def migrate_books_from_json(db: DatabaseManager):

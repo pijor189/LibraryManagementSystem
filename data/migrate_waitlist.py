@@ -1,5 +1,4 @@
 import data.library_state as state
-
 from data.database_manager import DatabaseManager
 
 

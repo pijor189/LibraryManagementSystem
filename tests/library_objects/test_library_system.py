@@ -1,8 +1,10 @@
-import pytest
 import logging
-from library.user import User
-from exceptions.library_exceptions import UserHasBorrowedItemsError
+
+import pytest
+
 from exceptions.book_exceptions import MissingItemError
+from exceptions.library_exceptions import UserHasBorrowedItemsError
+from library.user import User
 
 logging.disable(logging.CRITICAL)
 

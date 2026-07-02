@@ -14,9 +14,9 @@ def pytest_collection_modifyitems(config, items):
     }
     selected_markers = set()
 
-    for option, markers in markers.items():
+    for option, marker in markers.items():
         if config.getoption(option):
-            selected_markers.update(markers)
+            selected_markers.update(marker)
 
     if not selected_markers:
         return

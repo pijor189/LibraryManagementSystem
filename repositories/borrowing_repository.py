@@ -1,8 +1,9 @@
+from datetime import date, datetime, timedelta
+from typing import Any
+
 from data.database_manager import DatabaseManager
 from exceptions.book_exceptions import MissingItemError
 from utils.uid import generate_uid
-from datetime import date, datetime, timedelta
-from typing import Self
 
 
 class BorrowingRepository:
@@ -30,8 +31,10 @@ class BorrowingRepository:
                 f"Book {book_id} does not exist."
             )
         available = self.book_repo.is_book_available(book_id)
+        users_limit = len(self.user_repo.get_all_books_from_user(user_id)) < 3
 
-        if book["type"] == 'book' and not available["available"]:
+        if (book["type"] == 'book'
+                and (not available["available"] or not users_limit)):
             self.waitlist_repo.add_user_to_waitlist(user_id, book_id)
         else:
             loans = self.get_all_loans()
@@ -46,7 +49,7 @@ class BorrowingRepository:
             self.db.execute(
                 """
                 INSERT INTO borrowings(
-                id, user_id, book_id, type, 
+                id, user_id, book_id, type,
                 borrowed_at, due_to, returned_at)
                 VALUES (?, ?, ?, ?, ?, ?, ?)
                 """,
@@ -97,8 +100,8 @@ class BorrowingRepository:
             """
             UPDATE borrowings
             SET returned_at = ?
-            WHERE user_id = ? 
-                AND book_id = ? 
+            WHERE user_id = ?
+                AND book_id = ?
                 AND returned_at IS NULL
             """,
             (
@@ -122,7 +125,7 @@ class BorrowingRepository:
             """
             UPDATE borrowings
             SET returned_at = ?
-            WHERE user_id = ? 
+            WHERE user_id = ?
                 AND returned_at IS NULL
             """,
             (
@@ -134,10 +137,28 @@ class BorrowingRepository:
         for book in books:
             self.waitlist_repo.manage_queue(book)
 
-    def get_all_loans(self) -> Self:
+    def get_all_loans(self) -> list[Any]:
         return self.db.fetchall(
             """
             SELECT id
             FROM borrowings
             """
         )
+    #
+    # def is_overdue_loan(self):
+    #     open_loans = self.db.fetchall(
+    #         """
+    #         SELECT id, user_id, book_id
+    #         FROM borrowings
+    #         WHERE returned_at IS NULL
+    #             AND due_to < ?
+    #         """,
+    #         (
+    #             date.today(),
+    #         )
+    #     )
+    #
+    #     for loan in open_loans:
+    #         print(f"User {loan["user_id"]} expired borrow time"
+    #               f" for book {loan["book_id"]} and should return"
+    #               "immediately!")

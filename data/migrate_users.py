@@ -1,8 +1,8 @@
 import json
-import data.library_state as state
 
-from library.user import User
+import data.library_state as state
 from data.database_manager import DatabaseManager
+from library.user import User
 
 
 def migrate_users_from_json(db: DatabaseManager):

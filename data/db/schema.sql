@@ -38,7 +38,7 @@ CREATE TABLE IF NOT EXISTS waitlist (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     user_id TEXT,
     book_id TEXT,
-    position TEXT,
+    created_at TEXT,
 
     FOREIGN KEY(user_id) REFERENCES users(id),
     FOREIGN KEY(book_id) REFERENCES books(id)

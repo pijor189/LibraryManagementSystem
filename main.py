@@ -1,7 +1,7 @@
 import logging
+
 import cli.interface as interface
 import data.database_state as state
-
 
 # debug / release
 MODE = "release"
@@ -9,6 +9,7 @@ MODE = "release"
 
 if MODE == "debug":
     from pathlib import Path
+
     from data.init_db import initialize_database, migrate_to_db_and_object
     from repositories.book_repository import BookRepository
     from repositories.borrowing_repository import BorrowingRepository

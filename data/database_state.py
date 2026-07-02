@@ -4,7 +4,6 @@ from repositories.borrowing_repository import BorrowingRepository
 from repositories.user_repository import UserRepository
 from repositories.waitlist_repository import WaitlistRepository
 
-
 # Database initialization
 db = DatabaseManager(db_name="data/db/library.db")
 

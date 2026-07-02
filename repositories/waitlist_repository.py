@@ -1,5 +1,6 @@
-from data.database_manager import DatabaseManager
 from datetime import datetime
+
+from data.database_manager import DatabaseManager
 
 
 class WaitlistRepository:
@@ -18,7 +19,7 @@ class WaitlistRepository:
     ) -> None:
         self.db.execute(
             """
-            INSERT INTO waitlist(user_id, book_id, position)
+            INSERT INTO waitlist(user_id, book_id, created_at)
             VALUES (?, ?, ?)
             """,
             (
@@ -35,7 +36,7 @@ class WaitlistRepository:
             SELECT id, user_id
             FROM waitlist
             WHERE book_id = ?
-            GROUP BY position
+            ORDER BY created_at
             """,
             (
                 book_id,
@@ -62,7 +63,7 @@ class WaitlistRepository:
             )
 
             if user_id:
-                self.borrow_repo.borrow_book(user_id, book_id)
+                self.borrow_repo.borrow_book(user_id["id"], book_id)
 
                 self.db.execute(
                     """
@@ -75,4 +76,5 @@ class WaitlistRepository:
                 )
                 break
             else:
-                print(f"User {user_id} has reached the book limit.")
+                print(f"User {wait_user["user_id"]} "
+                      "has reached the book limit.")

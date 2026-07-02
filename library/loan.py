@@ -1,10 +1,8 @@
+from datetime import date, datetime, timedelta
+
+from exceptions.loan_exceptions import InvalidExtendDaysError, LoanInitializationError
+from library.book import Book, EBook
 from library.user import User
-from library.book import EBook, Book
-from datetime import date, timedelta, datetime
-from exceptions.loan_exceptions import (
-    LoanInitializationError,
-    InvalidExtendDaysError
-)
 
 
 class Loan:

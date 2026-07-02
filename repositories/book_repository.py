@@ -1,15 +1,13 @@
-from exceptions.book_exceptions import (
-    ItemInitializationError,
-    MissingItemError
-)
-from exceptions.library_exceptions import (
-    InvalidNumberOfBooksError,
-    BookCurrentlyBorrowedError
-)
-from data.database_manager import DatabaseManager
-from utils.uid import generate_uid
 from datetime import datetime
-from typing import Self
+from typing import Any
+
+from data.database_manager import DatabaseManager
+from exceptions.book_exceptions import ItemInitializationError, MissingItemError
+from exceptions.library_exceptions import (
+    BookCurrentlyBorrowedError,
+    InvalidNumberOfBooksError,
+)
+from utils.uid import generate_uid
 
 
 class BookRepository:
@@ -146,7 +144,7 @@ class BookRepository:
         data = self.find_book_by_id(book_id)
 
         if data:
-            self.update_books_amount(book_id, amount)
+            self.update_books_amount(book_id, data["amount"] + amount)
         else:
             raise MissingItemError(
                 f"Book {book_id} does not exist."
@@ -165,7 +163,7 @@ class BookRepository:
                 "Invalid number of amount."
             )
 
-        self.update_books_amount(book_id, amount)
+        self.update_books_amount(book_id, data["amount"] - amount)
 
     def remove_book(self, book_id: str) -> None:
         book = self.find_book_by_id(book_id)
@@ -231,20 +229,20 @@ class BookRepository:
                     "and cannot be removed."
                 )
 
-    def get_all_books(self) -> Self:
+    def get_all_books(self) -> list[Any]:
         return self.db.fetchall(
             """
             SELECT id, title, author, genre, year, 'book' AS type
             FROM books
-            
+
             UNION ALL
-            
+
             SELECT id, title, author, genre, year, 'ebook' AS type
             FROM ebooks
             """
         )
 
-    def get_available_books(self) -> Self:
+    def get_available_books(self) -> list[Any]:
         return self.db.fetchall(
             """
             SELECT title, author, genre, year, 'book' AS type
@@ -265,10 +263,10 @@ class BookRepository:
             """
         )
 
-    def is_book_available(self, book_id: str):
+    def is_book_available(self, book_id: str) -> Any:
         return self.db.fetchone(
             """
-            SELECT b.amount > 
+            SELECT b.amount >
                 (SELECT COUNT(*)
                 FROM borrowings
                 WHERE book_id = b.id
@@ -282,15 +280,15 @@ class BookRepository:
             )
         )
 
-    def find_book_by_id(self, book_id: str) -> Self:
+    def find_book_by_id(self, book_id: str) -> Any:
         return self.db.fetchone(
             """
             SELECT title, author, genre, year, amount, 'book' AS type
             FROM books
             WHERE id = ?
-            
+
             UNION ALL
-            
+
             SELECT title, author, genre, year, file_size, 'ebook' AS type
             FROM ebooks
             WHERE id = ?
@@ -301,7 +299,7 @@ class BookRepository:
             )
         )
 
-    def find_book_by_title(self, title: str) -> Self:
+    def find_book_by_title(self, title: str) -> list[Any]:
         title = " ".join(title.lower().split())
 
         return self.db.fetchall(
@@ -322,7 +320,7 @@ class BookRepository:
             )
         )
 
-    def find_book_by_genre(self, genre: str) -> Self:
+    def find_book_by_genre(self, genre: str) -> list[Any]:
         return self.db.fetchall(
             """
             SELECT id, title, author, genre, year, 'book' AS type
@@ -341,7 +339,7 @@ class BookRepository:
             )
         )
 
-    def find_book_by_author(self, author: str) -> Self:
+    def find_book_by_author(self, author: str) -> list[Any]:
         return self.db.fetchall(
             """
             SELECT id, title, author, genre, year, 'book' AS type
